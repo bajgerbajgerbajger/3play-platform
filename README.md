@@ -1,28 +1,28 @@
-# 3Play - Private Media Sharing Platform
+# 3Play - Media & Sharing Platform
 
-A modern, full-stack video management and personal media server built with Next.js 16, TypeScript, Tailwind CSS, and SQLite. Designed for private sharing of personal collections and testing purposes.
+A modern, full-stack video management platform built with Next.js 16, TypeScript, Tailwind CSS, and SQLite. Designed for media hosting, community sharing, and content management.
 
 ---
 
 ## ⚠️ Právní doložka a Disclaimer / Legal Notice
 
-**Tento projekt je určen výhradně pro osobní, vzdělávací a soukromé účely.**
+**Tento projekt slouží jako platforma pro hosting a sdílení obsahu.**
 
-1.  **Neziskový charakter:** Tato aplikace je vyvíjena a provozována jako neziskový projekt. Neprobíhá zde žádná monetizace, prodej obsahu ani reklama.
-2.  **Odpovědnost za obsah:** Vývojáři platformy 3Play nenesou žádnou odpovědnost za obsah nahraný uživateli. Každý uživatel je plně zodpovědný za to, že jím nahraný obsah neporušuje autorská práva ani jiné zákony.
-3.  **Soukromé sdílení:** Platforma je navržena jako nástroj pro správu a soukromé sdílení osobních mediálních sbírek (podobně jako Plex nebo Jellyfin). Není určena k veřejné distribuci autorsky chráněných děl.
-4.  **Autorská práva:** Respektujeme práva vlastníků duševního vlastnictví. Pokud jste vlastníkem autorských práv k obsahu, který byl na platformu nahrán bez vašeho svolení, kontaktujte prosím správce konkrétní instance pro okamžité odstranění.
-5.  **Použití na vlastní riziko:** Provozováním této aplikace uživatel potvrzuje, že jedná v souladu s místními zákony týkajícími se digitálního obsahu a autorských práv.
+1.  **Monetizace a Reklamy:** Tato platforma může obsahovat reklamní systémy (např. AdSense, AdFly) za účelem pokrytí nákladů na provoz serveru a další vývoj infrastruktury. Reklamy nejsou přímo vázány na konkrétní autorsky chráněná díla.
+2.  **Autorská práva a DMCA:** Provozovatel platformy 3Play plně respektuje autorská práva (Copyright). Naším cílem není profitovat z nelegálního sdílení chráněného obsahu. 
+3.  **Odpovědnost za obsah:** Veškerý obsah je nahráván uživateli. Provozovatel platformy neprovádí předběžnou kontrolu každého souboru, ale zavazuje se k rychlému odstranění jakéhokoli obsahu, který porušuje autorská práva, na základě řádného nahlášení (DMCA request).
+4.  **Uživatelská smlouva:** Nahráním obsahu uživatel potvrzuje, že k němu vlastní práva nebo má svolení k jeho sdílení. Jakékoli zneužití platformy k distribuci nelegálního obsahu je v rozporu s našimi pravidly.
+5.  **Sdílení vs. Prodej:** Platforma slouží ke sdílení obsahu v rámci komunity, nikoliv k přímému prodeji autorských děl.
 
 ---
 
 ## Funkce
 
-- **Osobní knihovna**: Správa a organizace vlastní sbírky filmů a seriálů.
-- **Zabezpečený přístup**: Přihlášení přes NextAuth.js (Email/Heslo).
-- **Admin Dashboard**: Rozhraní pro nahrávání a správu metadat.
-- **Moderní UI**: Responzivní tmavý režim postavený na Shadcn/ui.
-- **Multi-platformní**: Webová verze a podpora pro mobilní zobrazení.
+- **Media Library**: Pokročilá správa filmů, seriálů a uživatelských videí.
+- **Ad System Integration**: Podpora pro vkládání reklamních skriptů.
+- **Zabezpečený přístup**: Robustní autentizace přes NextAuth.js.
+- **Admin Dashboard**: Kompletní správa uživatelů a nahraného obsahu.
+- **Moderní UI**: Responzivní tmavý režim (Shadcn/ui).
 
 ## Instalace
 
@@ -54,20 +54,11 @@ npm run db:seed
 npm run dev
 ```
 
-Otevřete [http://localhost:3000](http://localhost:3000) ve vašem prohlížeči.
-
 ### Výchozí Admin údaje
 
 - **Email**: `admin@3play.com`
 - **Heslo**: `admin123`
 
-## Struktura projektu
-
-- `prisma/`: Schéma databáze a seed skripty.
-- `src/app/admin/`: Admin panel pro správu obsahu.
-- `src/app/api/`: Backend API (Auth, Upload, Media).
-- `public/uploads/`: Lokální úložiště pro média (vytvořeno při prvním nahrání).
-
 ## Licence
 
-Tento software je licencován pod MIT licencí. Licence se vztahuje pouze na zdrojový kód aplikace, nikoliv na obsah, který skrze aplikaci může být streamován.
+Zdrojový kód aplikace je licencován pod MIT licencí. Tato licence se nevztahuje na mediální obsah hostovaný na platformě.
