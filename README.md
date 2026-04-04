@@ -1,45 +1,44 @@
-# 3Play - Global Media Infrastructure Platform
+# 3Play - Enterprise Media Hub & Infrastructure
 
-A high-performance, full-stack media management architecture built with Next.js 16, TypeScript, and Tailwind CSS. 3Play is designed as a neutral technical intermediary for content indexing, distribution, and community-driven media networks.
+A high-performance, full-stack media distribution architecture designed for large-scale content indexing and decentralized media networks. Built with Next.js 16, TypeScript, and Tailwind CSS.
 
 ---
 
-## ⚖️ Legal Framework & Risk Mitigation (Global Standards)
+## ⚖️ Global Legal Compliance & Intellectual Property Protection
 
-**Tato sekce definuje právní postavení platformy 3Play jako technického zprostředkovatele (Service Provider) v souladu s mezinárodními standardy (DMCA, EU Copyright Directive, Safe Harbor).**
+**Tento projekt a jeho provozovatelé plně respektují autorská práva a duševní vlastnictví v souladu s globálními standardy (Netflix, Disney+, YouTube, OnePlay).**
 
-### 1. Právní imunita (Neutral Intermediary)
-3Play funguje výhradně jako poskytovatel technických nástrojů. V souladu s principem "Safe Harbor" (USA) a "Article 17" (EU) platforma nenese odpovědnost za obsah nahraný třetími stranami (providery), pokud:
-- Sama obsah nevybírá ani neupravuje.
-- Neprovádí aktivní vyhledávání nelegálního obsahu (není její zákonnou povinností).
-- Neprodleně reaguje na nahlášení porušení práv.
+### 1. Ochrana duševního vlastnictví (Intellectual Property)
+3Play je nezávislá technologická platforma. Veškeré ochranné známky, loga a autorská díla (včetně názvů filmů, seriálů a studií jako Netflix, Disney+, HBO, OnePlay atd.), které se mohou v systému objevit, jsou majetkem jejich příslušných vlastníků.
+- **Fair Use & Indexing:** Systém funguje jako metadata indexer a technický zprostředkovatel. Samotná platforma 3Play není vlastníkem obsahu ani licencí k těmto dílům.
+- **No Affiliation:** Platforma 3Play není žádným způsobem spojena, sponzorována ani podporována výše uvedenými společnostmi.
 
-### 2. DMCA & Copyright Policy (Standard pro streaming)
-Všechny subjekty využívající tuto infrastrukturu musí dodržovat politiku "Zero Tolerance" vůči vědomému porušování autorských práv:
-- **Takedown Notice:** Platforma obsahuje mechanismus pro okamžité odstranění obsahu na základě validního nahlášení držitelem práv.
-- **Repeat Infringer Policy:** Uživatelé nebo provideři, kteří opakovaně porušují autorská práva, budou trvale zablokováni.
+### 2. Právní postavení (Service Provider Immunity)
+V souladu s mezinárodními zákony o digitálním obsahu (např. DMCA v USA, Směrnice o autorském právu v EU) funguje 3Play jako **poskytovatel služeb (Service Provider)**. 
+- **Safe Harbor:** Jako poskytovatel infrastruktury požíváme právní imunity za obsah nahraný uživateli/providery, pokud dodržujeme postupy "Notice and Takedown".
+- **Odpovědnost:** Odpovědnost za legální původ nahraného obsahu nese výhradně subjekt (Content Provider), který obsah do systému vložil.
 
-### 3. Monetizace a Reklamní systémy
-Integrace reklamních sítí (AdSense, AdFly, atd.) slouží výhradně k:
-- Pokrytí nákladů na hosting, CDN a šířku pásma (bandwidth).
-- Vývoji bezpečnostních prvků a údržbě kódu.
-Reklamní příjmy jsou odděleny od samotného obsahu a jsou účtovány za poskytování technické služby platformy.
+### 3. DMCA & Global Takedown Policy
+Provozovatel platformy 3Play uplatňuje politiku okamžitého odstranění obsahu při nahlášení porušení autorských práv.
+- **Hlášení porušení:** Majitelé práv mohou zasílat žádosti o odstranění na kontaktní e-mail administrátora. Žádosti jsou vyřizovány v nejkratším možném termínu v souladu s globálními standardy.
+- **Repeat Infringer Policy:** Opakované porušování autorských práv vede k trvalému zablokování přístupu providera k infrastruktuře.
 
-### 4. Odpovědnost Providerů (Sharing Providers)
-Administrátoři instancí (provideři) vystupují jako nezávislí správci obsahu. Nahráním jakéhokoliv materiálu potvrzují, že disponují příslušnými licencemi nebo jednají v rámci zákonných výjimek (např. Fair Use, Private Sharing).
+### 4. Monetizace a Reklamní sítě
+Reklamní systémy (např. AdSense, AdFly) integrované do platformy slouží výhradně k:
+- **Technickému provozu:** Pokrytí nákladů na servery, hosting a údržbu sítě.
+- **Inovaci:** Vývoji nových funkcí pro lepší distribuci a zabezpečení dat.
+Příjmy z reklam jsou poplatkem za využívání technologické platformy, nikoliv za přístup k autorsky chráněným dílům.
 
 ---
 
 ## Klíčové vlastnosti
 
-- **Enterprise Infrastructure**: Škálovatelný systém pro distribuci velkoobjemových dat.
-- **Neutral Core**: Architektura oddělující technickou vrstvu od obsahu.
-- **Advanced Access Control**: Šifrované přístupy pro autorizované providery.
-- **Global Compliance Ready**: Připraveno pro implementaci lokálních právních požadavků.
+- **Infrastructure Core**: Špičková architektura pro správu masivních mediálních knihoven.
+- **Compliance Engine**: Nástroje pro správu autorských práv a rychlé odstraňování obsahu.
+- **Enterprise Security**: Víceúrovňové šifrování a kontrola přístupů.
+- **Decentralized Distribution**: Podpora pro distribuované sítě content providerů.
 
 ## Instalace a Provoz
-
-### Postup
 
 ```bash
 npm install
@@ -49,13 +48,6 @@ npm run build
 npm start
 ```
 
-## Bezpečnost a Ochrana dat
-
-- **Strict Admin Policy**: Přístup k nahrávání je povolen pouze po manuálním ověření administrátorem.
-- **Data Isolation**: Každý provider spravuje svou izolovanou knihovnu obsahu.
-
----
-
 ## Licence
 
-Zdrojový kód (engine) je šířen pod MIT licencí. Tato licence se vztahuje na logiku aplikace a UI prvky. Autorská práva k médiím přenášeným systémem zůstávají původním vlastníkům.
+Technické řešení 3Play je šířen pod MIT licencí. Licence se vztahuje výhradně na zdrojový kód. Autorská práva k mediálnímu obsahu zůstávají nedotčena a patří jejich původním vlastníkům.
