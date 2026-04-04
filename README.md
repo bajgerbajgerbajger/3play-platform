@@ -1,64 +1,53 @@
-# 3Play - Media & Sharing Platform
+# 3Play - Media Indexing & Sharing Network
 
-A modern, full-stack video management platform built with Next.js 16, TypeScript, Tailwind CSS, and SQLite. Designed for media hosting, community sharing, and content management.
-
----
-
-## ⚠️ Právní doložka a Disclaimer / Legal Notice
-
-**Tento projekt slouží jako platforma pro hosting a sdílení obsahu.**
-
-1.  **Monetizace a Reklamy:** Tato platforma může obsahovat reklamní systémy (např. AdSense, AdFly) za účelem pokrytí nákladů na provoz serveru a další vývoj infrastruktury. Reklamy nejsou přímo vázány na konkrétní autorsky chráněná díla.
-2.  **Autorská práva a DMCA:** Provozovatel platformy 3Play plně respektuje autorská práva (Copyright). Naším cílem není profitovat z nelegálního sdílení chráněného obsahu. 
-3.  **Odpovědnost za obsah:** Veškerý obsah je nahráván uživateli. Provozovatel platformy neprovádí předběžnou kontrolu každého souboru, ale zavazuje se k rychlému odstranění jakéhokoli obsahu, který porušuje autorská práva, na základě řádného nahlášení (DMCA request).
-4.  **Uživatelská smlouva:** Nahráním obsahu uživatel potvrzuje, že k němu vlastní práva nebo má svolení k jeho sdílení. Jakékoli zneužití platformy k distribuci nelegálního obsahu je v rozporu s našimi pravidly.
-5.  **Sdílení vs. Prodej:** Platforma slouží ke sdílení obsahu v rámci komunity, nikoliv k přímému prodeji autorských děl.
+A high-performance, full-stack media management infrastructure built with Next.js 16, TypeScript, and Tailwind CSS. 3Play acts as a decentralized hub for content providers to share and index media collections.
 
 ---
 
-## Funkce
+## ⚠️ Právní doložka a Disclaimer / Legal & DMCA Compliance
 
-- **Media Library**: Pokročilá správa filmů, seriálů a uživatelských videí.
-- **Ad System Integration**: Podpora pro vkládání reklamních skriptů.
-- **Zabezpečený přístup**: Robustní autentizace přes NextAuth.js.
-- **Admin Dashboard**: Kompletní správa uživatelů a nahraného obsahu.
-- **Moderní UI**: Responzivní tmavý režim (Shadcn/ui).
+**Tato platforma funguje jako poskytovatel technické infrastruktury pro sdílení obsahu mezi nezávislými providery a uživateli.**
 
-## Instalace
+1.  **Model sdílení (Content Providers):** 3Play slouží jako nástroj pro správce (providery), kteří nahrávají a sdílejí obsah v rámci uzavřené nebo otevřené komunity. Platforma sama o sobě nevlastní ani neprodukuje žádný mediální obsah.
+2.  **Omezení přístupu:** Registrace a přístup do administrátorského rozhraní jsou striktně omezeny a nejsou veřejně přístupné. Platforma je chráněna proti neoprávněným změnám a přístupům třetích stran.
+3.  **Monetizace a infrastruktura:** Systém může obsahovat reklamní moduly (např. AdSense, AdFly). Tyto příjmy jsou využívány výhradně na údržbu serverů, škálování úložiště a zajištění nepřetržitého provozu infrastruktury. Reklamy nejsou platbou za obsah, ale za využívání technických služeb platformy.
+4.  **Ochrana autorských práv (DMCA):** Provozovatel platformy 3Play jedná v souladu s mezinárodními standardy pro poskytovatele hostingových služeb. Pokud zjistíte, že obsah nahraný jedním z providerů porušuje vaše autorská práva, zašlete prosím řádné oznámení o odstranění (Takedown Notice) na kontaktní e-mail administrátora. Obsah bude po ověření neprodleně odstraněn.
+5.  **Právní imunita:** Platforma je navržena tak, aby splňovala podmínky pro "Safe Harbor" ochranu poskytovatelů služeb. Veškerá odpovědnost za legálnost a původ nahraného obsahu leží na konkrétním providerovi, který obsah do systému vložil.
+
+---
+
+## Klíčové vlastnosti
+
+- **Provider Infrastructure**: Robustní systém pro nahrávání a distribuci médií.
+- **Access Control**: Zabezpečené rozhraní s víceúrovňovým oprávněním.
+- **Ad-Network Ready**: Integrované sloty pro reklamní systémy na pokrytí nákladů.
+- **Dynamic Indexing**: Automatické generování metadat pro filmy a seriály.
+- **Scalable Architecture**: Navrženo pro trvalý provoz s vysokou zátěží.
+
+## Instalace a Provoz
 
 ### Požadavky
 
 - Node.js 18+
+- SQLite / PostgreSQL (pro produkční nasazení)
 
-### Postup
+### Instalace
 
-1. Nainstalujte závislosti:
 ```bash
 npm install
-```
-
-2. Nastavte proměnné prostředí:
-```bash
-cp .env.example .env
-```
-
-3. Nastavte databázi (SQLite):
-```bash
 npm run db:generate
-npx prisma db push --force-reset
-npm run db:seed
+npx prisma db push
+npm run build
+npm start
 ```
 
-4. Spusťte vývojový server:
-```bash
-npm run dev
-```
+## Bezpečnost a Údržba
 
-### Výchozí Admin údaje
+- **Zákaz veřejné registrace**: Přístup k nahrávání obsahu je povolen pouze autorizovaným providerům.
+- **Ochrana proti změnám**: Zdrojový kód a konfigurační soubory jsou chráněny proti modifikaci neautorizovanými uživateli.
 
-- **Email**: `admin@3play.com`
-- **Heslo**: `admin123`
+---
 
 ## Licence
 
-Zdrojový kód aplikace je licencován pod MIT licencí. Tato licence se nevztahuje na mediální obsah hostovaný na platformě.
+Software 3Play je šířen pod MIT licencí. Tato licence se vztahuje na technické řešení a kód, nikoliv na obsah přenášený přes tuto platformu.
