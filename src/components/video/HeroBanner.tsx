@@ -154,176 +154,74 @@ export function HeroBanner({ items }: HeroBannerProps) {
   };
 
   return (
-    <div className="relative h-[65vh] min-h-[450px] max-h-[750px] w-full group/banner overflow-hidden rounded-3xl" suppressHydrationWarning>
-      {/* Background Media */}
-      <div className="absolute inset-0 overflow-hidden" suppressHydrationWarning>
-        {/* Static Image */}
-        <div className={cn(
-          "absolute inset-0 transition-opacity duration-700",
-          showVideo && previewUrl ? "opacity-0" : "opacity-100"
-        )} suppressHydrationWarning>
-          {currentItem.backdropUrl ? (
-            <Image
-              src={currentItem.backdropUrl}
-              alt={currentItem.title}
-              fill
-              priority
-              className="object-cover"
-              onLoad={() => setIsLoading(false)}
-              sizes="100vw"
-            />
-          ) : (
-            <div className="w-full h-full bg-zinc-900" suppressHydrationWarning />
-          )}
-        </div>
-
-        {/* Background Video */}
-        {showVideo && previewUrl && (
-          <div className="absolute inset-0 z-0 animate-in fade-in duration-500" suppressHydrationWarning>
-            <video
-              ref={videoRef}
-              key={`${currentIndex}`} // Only re-mount when slide changes, not on scene jump
-              src={`${previewUrl}#t=${randomStartTime}`}
-              autoPlay
-              muted={isMuted}
-              playsInline
-              preload="metadata"
-              className="w-full h-full object-cover scale-105 transition-transform duration-[10s] ease-linear group-hover/banner:scale-110"
-              onLoadedMetadata={handleLoadedMetadata}
-              onEnded={() => randomizeScene(currentItem.duration)}
-              onError={(e) => {
-                const error = e.currentTarget.error;
-                if (error && (error.code === 4 || error.message?.includes('abort') || error.message?.includes('network'))) {
-                  return;
-                }
-              }}
-            />
-            {/* Quick Blink Transition Overlay (for scene jumps) */}
-            <div 
-              ref={blinkOverlayRef}
-              className="absolute inset-0 bg-black opacity-0 transition-opacity duration-150 pointer-events-none z-10" 
-              suppressHydrationWarning
-            />
-          </div>
-        )}
-
-        {/* Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/60 to-transparent z-10" suppressHydrationWarning />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10" suppressHydrationWarning />
+    <div className="relative h-[85vh] w-full bg-black overflow-hidden border-b border-zinc-800">
+      {/* Background with Grid/Scanlines */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.2)_50%),linear-gradient(90deg,rgba(255,0,0,0.05),rgba(0,255,0,0.02),rgba(0,0,255,0.05))] bg-[length:100%_4px,3px_100%] opacity-30 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-10" />
         
-        {/* Loading Skeleton Overlay */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-zinc-950 z-20 animate-pulse" suppressHydrationWarning />
+        {items[currentIndex] && (
+          <Image
+            src={items[currentIndex].backdropUrl || items[currentIndex].posterUrl || ''}
+            alt="Hero"
+            fill
+            className={cn(
+              "object-cover transition-all duration-1000",
+              isLoading ? "opacity-0 scale-110" : "opacity-40 scale-100"
+            )}
+            priority
+            onLoad={() => setIsLoading(false)}
+          />
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent" />
       </div>
 
-      {/* Content */}
-      <div className="relative h-full flex items-end z-20" suppressHydrationWarning>
-        <div className="w-full px-6 sm:px-10 lg:px-12 pb-16 max-w-3xl" suppressHydrationWarning>
-          <div className="space-y-5" suppressHydrationWarning>
-            {/* Badges */}
-            <div className="flex items-center gap-3" suppressHydrationWarning>
-              {currentItem.isPremium && (
-                <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded tracking-widest uppercase shadow-lg shadow-red-600/20">
-                  PREMIUM
-                </span>
-              )}
-              <span className="text-zinc-300 text-sm font-bold">
-                {isSeries ? 'TV Seriál' : 'Film'}
-              </span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-zinc-300 text-sm font-bold">
-                {'releaseYear' in currentItem ? currentItem.releaseYear : currentItem.startYear}
-              </span>
-              <Badge variant="outline" className="border-zinc-700 text-zinc-400 font-black text-[10px]">
-                {currentItem.rating || 'NR'}
-              </Badge>
-            </div>
+      {/* Infrastructure UI Overlay */}
+      <div className="absolute inset-0 z-20 flex flex-col justify-center px-4 sm:px-8 lg:px-16">
+        <div className="max-w-3xl space-y-6">
+          <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left duration-700">
+            <div className="h-[2px] w-12 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]" />
+            <span className="text-xs font-mono font-bold text-red-600 uppercase tracking-[0.3em]">
+              System Active // Node {currentIndex + 1}
+            </span>
+          </div>
 
-            {/* Title */}
-            <Link href={href} className="inline-block group/title" suppressHydrationWarning>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white drop-shadow-2xl tracking-tighter group-hover/title:text-white/90 transition-all">
-                {currentItem.title}
-              </h1>
-            </Link>
+          <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.9] animate-in fade-in slide-in-from-left duration-1000 delay-100">
+            {items[currentIndex]?.title}
+          </h1>
 
-            {/* Description */}
-            <p className="text-zinc-300 text-base sm:text-lg line-clamp-2 max-w-2xl drop-shadow-lg font-medium leading-relaxed" suppressHydrationWarning>
-              {currentItem.description}
-            </p>
+          <p className="text-lg text-zinc-400 font-medium max-w-xl line-clamp-3 animate-in fade-in slide-in-from-left duration-1000 delay-200">
+            {items[currentIndex]?.description}
+          </p>
 
-            {/* Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4" suppressHydrationWarning>
-              <Link href={href}>
-                <Button
-                  size="lg"
-                  className="bg-red-600 text-white hover:bg-red-500 gap-2 h-14 px-10 text-lg font-black rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-95 group/play"
-                >
-                  <Play className="w-6 h-6 fill-current group-hover/play:scale-110 transition-transform" />
-                  PŘEHRÁT
-                </Button>
+          <div className="flex flex-wrap items-center gap-4 pt-4 animate-in fade-in slide-in-from-top duration-1000 delay-300">
+            <Button 
+              size="lg" 
+              className="bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-none h-14 px-8 shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all hover:scale-105"
+              asChild
+            >
+              <Link href={`/${'seasons' in items[currentIndex] ? 'series' : 'movies'}/${items[currentIndex].slug}`}>
+                <Play className="mr-2 h-5 w-5 fill-current" /> Initialize Stream
               </Link>
-
-              <Button
-                size="lg"
-                variant="secondary"
-                className="bg-white/10 hover:bg-white/20 text-white gap-2 h-14 px-8 text-lg font-bold rounded-2xl backdrop-blur-md border border-white/10 transition-all"
-              >
-                <Plus className="w-6 h-6" />
-                Můj Seznam
-              </Button>
-            </div>
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="border-zinc-700 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest rounded-none h-14 px-8"
+            >
+              <Plus className="mr-2 h-5 w-5" /> Add to Queue
+            </Button>
           </div>
         </div>
-
-        {/* Sound Toggle Button */}
-        <div className="absolute bottom-16 right-8 sm:right-12 z-30 flex items-center gap-3" suppressHydrationWarning>
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            className="w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all"
-            title={isMuted ? "Unmute" : "Mute"}
-          >
-            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-          </button>
-        </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 pointer-events-none" suppressHydrationWarning>
-        <button
-          onClick={goToPrev}
-          className="pointer-events-auto h-12 w-12 rounded-2xl bg-black/20 hover:bg-red-600/80 text-white/70 hover:text-white flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-
-        <button
-          onClick={goToNext}
-          className="pointer-events-auto h-12 w-12 rounded-2xl bg-black/20 hover:bg-red-600/80 text-white/70 hover:text-white flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
-          aria-label="Next slide"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-30" suppressHydrationWarning>
-        {items.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={cn(
-              "h-1.5 rounded-full transition-all duration-500",
-              index === currentIndex
-                ? "w-10 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]"
-                : "w-4 bg-white/20 hover:bg-white/40"
-            )}
-            aria-label={`Go to slide ${index + 1}`}
-            suppressHydrationWarning
-          />
-        ))}
+      {/* Terminal-like Status Info */}
+      <div className="absolute bottom-8 right-8 z-30 hidden lg:block font-mono text-[10px] text-zinc-500 space-y-1">
+        <p>STATUS: OPERATIONAL</p>
+        <p>BUFFER: 100%</p>
+        <p>UPTIME: {Math.floor(process.uptime())}s</p>
+        <p>ENCRYPTION: AES-256</p>
       </div>
     </div>
   );
-}

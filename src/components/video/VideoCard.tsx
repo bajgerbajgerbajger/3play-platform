@@ -147,6 +147,54 @@ export function VideoCard({
     );
   }
 
+  if (variant === 'default') {
+    return (
+      <div
+        className={cn(
+          'group relative aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden transition-all duration-500 hover:border-red-600/50 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)]',
+          className
+        )}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <Link href={href} className="block w-full h-full">
+          <Image
+            src={content.backdropUrl || content.posterUrl || ''}
+            alt={content.title}
+            fill
+            className={cn(
+              'object-cover transition-all duration-700 group-hover:scale-105 group-hover:opacity-40',
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            onLoad={() => setImageLoaded(true)}
+          />
+          
+          {/* Infrastructure Overlay */}
+          <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest bg-red-600/10 px-2 py-0.5 border border-red-600/20">
+                  {isSeries ? 'Series Node' : 'Media Asset'}
+                </span>
+              </div>
+              <h3 className="text-sm font-black text-white uppercase tracking-tight truncate">
+                {content.title}
+              </h3>
+              <div className="flex items-center gap-3 text-[10px] font-mono text-zinc-500">
+                <span>ID: {content.slug.slice(0, 8)}</span>
+                <span>•</span>
+                <span>{isSeries ? 'Multi-Part' : formatDuration(content.duration)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Scanline Effect */}
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%] opacity-20 group-hover:opacity-40 transition-opacity" />
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <Link
       href={href}
