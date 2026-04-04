@@ -71,29 +71,22 @@ export function Logo({
 
   // Default: Primary Logo - suppress hydration warning for browser extensions
   return (
-    <div className={cn("flex items-center gap-0 select-none", className)} suppressHydrationWarning>
-      {/* Icon Part: "3" and Play Button */}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="80" height="60" className="shrink-0">
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF4444" stopOpacity={1} />
-            <stop offset="100%" stopColor="#FF0000" stopOpacity={1} />
-          </linearGradient>
-          <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF6B6B" stopOpacity={1} />
-            <stop offset="100%" stopColor="#CC0000" stopOpacity={1} />
-          </linearGradient>
-        </defs>
-        <text x="10" y="90" fontFamily="Arial Black, sans-serif" fontSize="90" fontWeight="900" fill="#FFFFFF">3</text>
-        <polygon points="95,25 95,95 155,60" fill="url(#grad1)" rx="4"/>
-        <polygon points="100,35 100,85 145,60" fill="url(#grad2)" opacity="0.3"/>
-      </svg>
+    <div className={cn("flex items-center gap-2 select-none group", className)} suppressHydrationWarning>
+      <div className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 rounded-xl overflow-hidden shadow-2xl group-hover:border-red-600/50 transition-all duration-500">
+        <div className="absolute inset-0 bg-gradient-to-tr from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <span className="text-2xl font-black text-white z-10 tracking-tighter">3</span>
+        <div className="ml-1 w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-red-600 border-b-[8px] border-b-transparent drop-shadow-[0_0_8px_rgba(220,38,38,0.5)] group-hover:scale-110 transition-transform duration-300" />
+      </div>
 
-      {/* Text Part: "PLAY" - Hidden on mobile */}
       {showText && (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="160 0 240 120" width="120" height="60" className="hidden sm:block shrink-0">
-          <text x="168" y="88" fontFamily="Arial Black, sans-serif" fontSize="72" fontWeight="900" fill="#FFFFFF">PLAY</text>
-        </svg>
+        <div className="flex flex-col -space-y-1">
+          <span className="text-xl font-black text-white tracking-tight leading-none">
+            3PLAY
+          </span>
+          <span className="text-[10px] font-bold text-red-600 tracking-[0.2em] leading-none uppercase opacity-80">
+            Infrastructure
+          </span>
+        </div>
       )}
     </div>
   );

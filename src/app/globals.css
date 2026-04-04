@@ -49,12 +49,12 @@
 }
 
 :root {
-  --primary-red: #FF4444;
-  --primary-dark: #CC0000;
-  --accent-light: #FF6B6B;
-  --bg-dark: #1A1A2E;
-  --bg-deep: #0F3460;
-  --text-white: #FFFFFF;
+  --primary-red: #DC2626;
+  --primary-dark: #991B1B;
+  --accent-light: #EF4444;
+  --bg-dark: #09090B;
+  --bg-deep: #000000;
+  --text-white: #FAFAFA;
   --text-dark: #1A1A2E;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

@@ -45,11 +45,11 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { href: '/', label: 'Home', icon: Home },
-    { href: '/browse', label: 'Browse', icon: Film },
-    { href: '/movies', label: 'Movies', icon: PlaySquare },
-    { href: '/series', label: 'Series', icon: Tv },
-    { href: '/watchlist', label: 'Watchlist', icon: Heart },
+    { href: '/', label: 'Dashboard', icon: Home },
+    { href: '/browse', label: 'Index', icon: Film },
+    { href: '/movies', label: 'Filmy', icon: PlaySquare },
+    { href: '/series', label: 'Seriály', icon: Tv },
+    { href: '/watchlist', label: 'Oblíbené', icon: Heart },
   ];
 
   return (

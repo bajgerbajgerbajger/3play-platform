@@ -85,17 +85,17 @@ export default async function HomePage() {
       <MainLayout>
         <div className="min-h-[80vh] flex items-center justify-center p-6 text-center">
           <div className="max-w-md space-y-4">
-            <h2 className="text-2xl font-bold text-white">Database Connection Error</h2>
+            <h2 className="text-2xl font-bold text-white tracking-tight">3Play Infrastructure Offline</h2>
             <p className="text-zinc-400">
-              We&apos;re having trouble connecting to the database. This usually means the database service is not running or the connection string is incorrect.
+              Systém nemůže navázat spojení s centrální databází. Zkontrolujte stav XAMPP (MySQL) a konfiguraci sítě.
             </p>
             <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 text-left">
-              <p className="text-sm font-semibold text-zinc-300 mb-2">Troubleshooting Steps:</p>
+              <p className="text-sm font-semibold text-zinc-300 mb-2 underline decoration-red-600 underline-offset-4">Diagnostické kroky:</p>
               <ul className="text-xs text-zinc-500 list-disc list-inside space-y-1">
-                <li>Ensure Docker Desktop is running</li>
-                <li>Run <code className="bg-black px-1 rounded text-zinc-300">docker compose up -d db</code></li>
-                <li>Check your <code className="bg-black px-1 rounded text-zinc-300">DATABASE_URL</code> in <code className="bg-black px-1 rounded text-zinc-300">.env</code></li>
-                <li>Try switching to SQLite for local development</li>
+                <li>Ujistěte se, že MySQL v XAMPP Control Panelu svítí zeleně</li>
+                <li>Zkontrolujte, zda port 3306 není blokován firewallem</li>
+                <li>Ověřte <code className="bg-black px-1 rounded text-zinc-300">DATABASE_URL</code> v souboru <code className="bg-black px-1 rounded text-zinc-300">.env</code></li>
+                <li>Restartujte 3Play Manager</li>
               </ul>
             </div>
           </div>
