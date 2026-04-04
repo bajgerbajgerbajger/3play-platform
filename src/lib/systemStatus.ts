@@ -1,5 +1,7 @@
 import { db } from '@/lib/db';
 
+// Triggers diagnostic update
+
 export async function getSystemStatus() {
   let status = await db.systemStatus.findUnique({
     where: { id: 'current' },
