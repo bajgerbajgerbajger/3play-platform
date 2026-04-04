@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Plus, Star } from 'lucide-react';
+import { Play, Plus } from 'lucide-react';
 import { Movie, Series } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -22,10 +22,9 @@ export function VideoCard({
   className,
   variant = 'default',
 }: VideoCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const previewTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const compactProgressRef = useRef<HTMLDivElement>(null);
   const defaultProgressRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +54,6 @@ export function VideoCard({
   const [previewStartTime, setPreviewStartTime] = useState(180);
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
     // Randomize preview start time (somewhere in the first 10-50% of the movie if possible)
     // For now, let's just pick a random minute
     setPreviewStartTime(Math.floor(Math.random() * 600) + 60); 
@@ -66,7 +64,6 @@ export function VideoCard({
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     setShowPreview(false);
     if (previewTimerRef.current) {
       clearTimeout(previewTimerRef.current);
@@ -110,14 +107,7 @@ export function VideoCard({
               fill
               className="object-cover"
               sizes="160px"
-              onError={(e) => {
-              // Silently handle common browser abort/network errors
-              const error = e.currentTarget.error;
-              if (error && (error.code === 4 || error.message?.includes('abort') || error.message?.includes('network'))) {
-                return;
-              }
-            }}
-          />
+            />
           ) : !isSeries && (content as Movie).videoUrl ? (
             <video
               src={`${(content as Movie).videoUrl}#t=300`}
