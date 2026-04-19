@@ -103,7 +103,7 @@ function SearchContent() {
         ) : results.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
             {results.map((item) => (
-              <VideoCard key={`${item.id}-${'title' in item ? 'movie' : 'series'}`} item={item} />
+              <VideoCard key={`${item.id}-${'title' in item ? 'movie' : 'series'}`} content={item} />
             ))}
           </div>
         ) : query ? (

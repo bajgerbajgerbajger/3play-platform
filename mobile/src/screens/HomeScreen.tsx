@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -20,20 +20,32 @@ const { width } = Dimensions.get('window');
 const COLUMN_COUNT = 2;
 const ITEM_WIDTH = (width - 48) / COLUMN_COUNT;
 
-export default function HomeScreen({ navigation, onLogout }: { navigation: any, onLogout: () => void }) {
+type Navigation = {
+  navigate: (screen: string, params?: Record<string, unknown>) => void;
+};
+
+type HomeScreenProps = {
+  navigation: Navigation;
+  onLogout: () => void;
+};
+
+export default function HomeScreen({ navigation, onLogout }: HomeScreenProps) {
   const [loading, setLoading] = useState(false);
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     setLoading(true);
     const data = await movieService.getMovies();
     setMovies(data);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchMovies();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchMovies]);
 
   const handleLogout = async () => {
     await authService.logout();

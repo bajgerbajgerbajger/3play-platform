@@ -5,6 +5,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ContentRow } from '@/components/video/ContentRow';
 import { MovieHero } from '@/components/video/MovieHero';
 import { db } from '@/lib/db';
+import type { Movie } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getMovie(slug: string) {
@@ -55,7 +56,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   return (
     <MainLayout>
       <div className="pb-8">
-        <MovieHero movie={movie as any} />
+        <MovieHero movie={movie as unknown as Movie} />
 
         {/* Best Moments / Highlights */}
         {movie.highlights && movie.highlights.length > 0 && (
@@ -102,8 +103,8 @@ export default async function MoviePage({ params }: MoviePageProps) {
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">{member.name}</p>
-                      {member.character && (
-                        <p className="text-zinc-500 text-xs">as {member.character}</p>
+                      {member.role && (
+                        <p className="text-zinc-500 text-xs">{member.role}</p>
                       )}
                     </div>
                   </div>
@@ -121,7 +122,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">{member.name}</p>
-                      <p className="text-zinc-500 text-xs capitalize">{member.role}</p>
+                      <p className="text-zinc-500 text-xs capitalize">{member.job}</p>
                     </div>
                   </div>
                 ))}

@@ -1,6 +1,8 @@
 import { db } from '@/lib/db';
 import { Film, Tv, Users, PlayCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage() {
   const [movieCount, seriesCount, userCount] = await Promise.all([
     db.movie.count(),

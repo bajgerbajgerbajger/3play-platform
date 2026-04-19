@@ -82,8 +82,8 @@ export interface Genre {
 export interface CastMember {
   id: string;
   name: string;
-  character: string | null;
-  avatarUrl: string | null;
+  role: string | null;
+  avatar: string | null;
 }
 
 export interface Subscription {

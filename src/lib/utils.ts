@@ -1,5 +1,17 @@
-export function cn(...classes: (string | undefined | null | false)[]) {
-  return classes.filter(Boolean).join(' ');
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]): string;
+export function cn<S>(...inputs: (ClassValue | ((state: S) => ClassValue))[]): (state: S) => string;
+export function cn<S>(...inputs: (ClassValue | ((state: S) => ClassValue))[]) {
+  const hasFn = inputs.some((i) => typeof i === 'function');
+  if (hasFn) {
+    return (state: S) =>
+      twMerge(
+        clsx(inputs.map((i) => (typeof i === 'function' ? i(state) : i)))
+      );
+  }
+  return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: Date | string): string {

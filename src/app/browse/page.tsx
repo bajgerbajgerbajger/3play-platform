@@ -2,7 +2,10 @@ import { BrowseFilters } from '@/components/browse/BrowseFilters';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { VideoCard } from '@/components/video/VideoCard';
 import { db } from '@/lib/db';
+import type { Prisma } from '@prisma/client';
 import { Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 
 async function getGenres() {
   return db.genre.findMany({
@@ -16,8 +19,13 @@ async function getContent(
   year?: string | null,
   sort?: string | null
 ) {
-  let movies: Awaited<ReturnType<typeof db.movie.findMany>> = [];
-  let series: Awaited<ReturnType<typeof db.series.findMany>> = [];
+  type MovieItem = Prisma.MovieGetPayload<{ include: { genres: true; cast: true; crew: true } }>;
+  type SeriesItem = Prisma.SeriesGetPayload<{
+    include: { genres: true; cast: true; crew: true; seasons: { include: { episodes: true } } };
+  }>;
+
+  let movies: MovieItem[] = [];
+  let series: SeriesItem[] = [];
 
   if (!type || type === 'all' || type === 'movie') {
     movies = await db.movie.findMany({

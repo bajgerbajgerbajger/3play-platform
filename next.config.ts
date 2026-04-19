@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  devIndicators: {
-    appIsrStatus: false,
-  },
-  // @ts-ignore - this is required for cross-device development in some next versions
   allowedDevOrigins: ['192.168.1.211', 'localhost:3001'],
   serverExternalPackages: ['better-sqlite3', 'fluent-ffmpeg', 'sharp'],
   typescript: {

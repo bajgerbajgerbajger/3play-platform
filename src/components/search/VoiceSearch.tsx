@@ -12,6 +12,38 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 
+type SpeechRecognitionResultItemLike = {
+  transcript: string;
+};
+
+type SpeechRecognitionResultLike = {
+  0: SpeechRecognitionResultItemLike;
+  isFinal: boolean;
+};
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+};
+
+type SpeechRecognitionErrorEventLike = {
+  error: string;
+};
+
+type SpeechRecognitionInstance = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+
 interface VoiceSearchProps {
   onResult: (text: string) => void;
   className?: string;
@@ -21,12 +53,16 @@ interface VoiceSearchProps {
 export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearchProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognitionInstance | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const w = window as unknown as {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const rec = new SpeechRecognition();
       rec.continuous = false;
@@ -38,7 +74,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
         setError(null);
       };
 
-      rec.onresult = (event: any) => {
+      rec.onresult = (event: SpeechRecognitionEventLike) => {
         const current = event.resultIndex;
         const transcriptText = event.results[current][0].transcript;
         setTranscript(transcriptText);
@@ -50,7 +86,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
         }
       };
 
-      rec.onerror = (event: any) => {
+      rec.onerror = (event: SpeechRecognitionErrorEventLike) => {
         console.error('Speech recognition error:', event.error);
         setError(`Chyba: ${event.error}`);
         setIsListening(false);
@@ -60,7 +96,8 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
         setIsListening(false);
       };
 
-      setRecognition(rec);
+      const stateTimer = setTimeout(() => setRecognition(rec), 0);
+      return () => clearTimeout(stateTimer);
     }
   }, [onResult, lang]); // Add lang to dependency array
 
@@ -131,7 +168,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
 
             <div className="text-center min-h-[2rem]">
               {transcript ? (
-                <p className="text-lg font-medium text-white italic">"{transcript}"</p>
+                <p className="text-lg font-medium text-white italic">&quot;{transcript}&quot;</p>
               ) : (
                 <p className="text-zinc-500">Naslouchám...</p>
               )}

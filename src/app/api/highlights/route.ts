@@ -32,7 +32,7 @@ export async function GET() {
     });
 
     // Format for the frontend
-    const formatted = highlights.map((h: any) => {
+    const formatted = highlights.map((h) => {
       const title = h.movie?.title || h.episode?.season.series.title || 'Unknown';
       const videoUrl = h.movie?.videoUrl || h.episode?.videoUrl;
       const backdropUrl = h.movie?.backdropUrl || h.episode?.season.series.backdropUrl;
@@ -46,7 +46,7 @@ export async function GET() {
         videoUrl,
         backdropUrl,
       };
-    }).filter((h: any) => !!h.videoUrl);
+    }).filter((h) => Boolean(h.videoUrl));
 
     return NextResponse.json(formatted);
   } catch (error) {

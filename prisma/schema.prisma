@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
 }
 
 model User {
@@ -182,6 +182,9 @@ model Episode {
   averageRating    Float              @default(0)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  isPublished      Boolean            @default(false)
+  isAIProcessed    Boolean            @default(false)
+  highlights       Highlight[]
   continueWatching ContinueWatching[]
   ratings          Rating[]
   reviews          Review[]
@@ -196,14 +199,18 @@ model Episode {
 
 model Highlight {
   id          String   @id @default(cuid())
-  movieId     String
+  movieId     String?
+  episodeId   String?
   title       String
-  timestamp   Int
   description String?
+  startTime   Int
+  endTime     Int
+  score       Float    @default(0)
   thumbnail   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  movie       Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movie       Movie?   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  episode     Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
 
   @@map("highlights")
 }
@@ -270,6 +277,7 @@ model CastMember {
   seriesId  String?
   name      String
   role      String?
+  order     Int      @default(0)
   avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -367,13 +375,18 @@ model WatchHistory {
   userId    String
   movieId   String?
   episodeId String?
-  timestamp Int
+  progress  Int
+  duration  Int
+  completed Boolean  @default(false)
+  watchedAt DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   episode   Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
   movie     Movie?   @relation(fields: [movieId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, movieId])
+  @@unique([userId, episodeId])
   @@map("watch_history")
 }
 
@@ -383,7 +396,7 @@ model ContinueWatching {
   movieId   String?
   seriesId  String?
   episodeId String?
-  timestamp Int
+  progress  Int
   duration  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

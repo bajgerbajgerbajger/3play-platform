@@ -2,6 +2,14 @@ import client from './client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from '../types';
 
+type ErrorWithResponse = {
+  response?: {
+    data?: {
+      error?: string;
+    };
+  };
+};
+
 export const authService = {
   login: async (email: string, password: string) => {
     try {
@@ -12,8 +20,9 @@ export const authService = {
       await AsyncStorage.setItem('user', JSON.stringify(user));
       
       return { user, token };
-    } catch (error: any) {
-      throw error.response?.data?.error || 'Přihlášení se nezdařilo';
+    } catch (error: unknown) {
+      const e = error as ErrorWithResponse;
+      throw e.response?.data?.error || 'Přihlášení se nezdařilo';
     }
   },
 
@@ -24,6 +33,6 @@ export const authService = {
 
   getCurrentUser: async (): Promise<User | null> => {
     const userStr = await AsyncStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    return userStr ? (JSON.parse(userStr) as User) : null;
   }
 };

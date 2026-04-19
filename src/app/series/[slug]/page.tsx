@@ -245,8 +245,8 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
                 </div>
                 <div>
                   <p className="text-white text-sm font-medium">{member.name}</p>
-                  {member.character && (
-                    <p className="text-zinc-500 text-xs">as {member.character}</p>
+                    {member.role && (
+                      <p className="text-zinc-500 text-xs">{member.role}</p>
                   )}
                 </div>
               </div>

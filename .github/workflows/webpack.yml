@@ -23,6 +23,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Build
+      env:
+        DATABASE_URL: file:./dev.db
+        NEXTAUTH_URL: http://localhost:3000
+        NEXTAUTH_SECRET: ci-secret
       run: |
-        npm install
-        npx webpack
+        npm ci
+        npm run lint
+        npm run build
