@@ -4,6 +4,8 @@ import { VideoCard } from '@/components/video/VideoCard';
 import { db } from '@/lib/db';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 async function getGenres() {
   return db.genre.findMany({
     orderBy: { name: 'asc' },

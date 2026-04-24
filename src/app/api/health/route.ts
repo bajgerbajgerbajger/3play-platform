@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       // redis: false,
       application: true,
     },
-    details: {} as any,
+    details: {} as Record<string, string>,
   };
 
   // Check Database

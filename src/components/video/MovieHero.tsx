@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { Play, Plus, Info, Volume2, VolumeX, Clock, Star, Share, ThumbsUp } from 'lucide-react';
+import { Play, Plus, Volume2, VolumeX, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Movie, Series } from '@/types';
+import { Movie } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface MovieHeroProps {
@@ -28,7 +28,7 @@ export function MovieHero({ movie }: MovieHeroProps) {
     setIsLoading(false);
     
     // Only admins can auto-update duration
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
+    const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
 
     if (videoRef.current && (!currentDuration || currentDuration === 0) && isAdmin) {
       const durationInMinutes = Math.floor(videoRef.current.duration / 60);
@@ -72,7 +72,9 @@ export function MovieHero({ movie }: MovieHeroProps) {
     const endMin = Math.floor(totalMinutes * 0.8);
     const initialRandomSec = Math.floor(Math.random() * (endMin - startMin) * 60) + (startMin * 60);
     
-    setRandomStartTime(initialRandomSec);
+    const stateTimer = setTimeout(() => {
+      setRandomStartTime(initialRandomSec);
+    }, 0);
     
     const timer = setTimeout(() => {
       setShowVideo(true);
@@ -85,6 +87,7 @@ export function MovieHero({ movie }: MovieHeroProps) {
     }, 15000);
 
     return () => {
+      clearTimeout(stateTimer);
       clearTimeout(timer);
       clearInterval(sceneTimer);
     };

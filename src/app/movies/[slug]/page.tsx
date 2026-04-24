@@ -5,7 +5,10 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ContentRow } from '@/components/video/ContentRow';
 import { MovieHero } from '@/components/video/MovieHero';
 import { db } from '@/lib/db';
+import type { Movie as MovieType } from '@/types';
 import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 async function getMovie(slug: string) {
   const movie = await db.movie.findUnique({
@@ -55,7 +58,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   return (
     <MainLayout>
       <div className="pb-8">
-        <MovieHero movie={movie as any} />
+        <MovieHero movie={movie as unknown as MovieType} />
 
         {/* Best Moments / Highlights */}
         {movie.highlights && movie.highlights.length > 0 && (
