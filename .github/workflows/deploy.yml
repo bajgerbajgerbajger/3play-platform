@@ -32,7 +32,9 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Notify Build Start
         run: |
           curl -X POST https://${{ secrets.APP_URL }}/api/admin/system-status \
@@ -63,7 +65,7 @@ jobs:
               \"branch\": \"main\",
               \"mode\": \"queue\",
               \"copy_config_files\": true,
-              \"run_build_commands\": true,
+            \"run_build_commands\": false,
               \"use_build_cache\": true
             }
           }" \
@@ -78,6 +80,7 @@ jobs:
   build-mobile:
     needs: build-web
     runs-on: ubuntu-latest
+    if: ${{ secrets.EXPO_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Expo
@@ -92,7 +95,7 @@ jobs:
           -H "x-update-secret: ${{ secrets.UPDATE_SECRET }}" \
           -d '{"progress": 70, "log": "Příprava mobilních aplikací (Expo)...", "message": "Synchronizace s mobilními platformami"}'
       - name: Install Mobile Deps
-        run: cd mobile && npm install
+        run: cd mobile && npm ci
       - name: Notify Success
         run: |
           curl -X POST https://${{ secrets.APP_URL }}/api/admin/system-status \

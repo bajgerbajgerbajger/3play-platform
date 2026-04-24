@@ -1,5 +1,17 @@
-export function cn(...classes: (string | undefined | null | false)[]) {
-  return classes.filter(Boolean).join(' ');
+type ClassValue = string | undefined | null | false;
+type ClassFn = (state: any) => string | undefined;
+
+export function cn(...classes: ClassValue[]): string;
+export function cn(...classes: (ClassValue | ClassFn)[]): string | ClassFn;
+export function cn(...classes: (ClassValue | ClassFn)[]) {
+  const hasFn = classes.some((c) => typeof c === 'function');
+  if (!hasFn) return (classes as ClassValue[]).filter(Boolean).join(' ');
+
+  return (state: any) =>
+    classes
+      .map((c) => (typeof c === 'function' ? c(state) : c))
+      .filter(Boolean)
+      .join(' ');
 }
 
 export function formatDate(date: Date | string): string {
