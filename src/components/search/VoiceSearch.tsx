@@ -38,15 +38,15 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
     }
   }, [lang]);
 
-  const getSpeechRecognitionCtor = () => {
+  const getSpeechRecognitionCtor = useCallback(() => {
     const w = window as unknown as {
       SpeechRecognition?: SpeechRecognitionConstructor;
       webkitSpeechRecognition?: SpeechRecognitionConstructor;
     };
     return w.SpeechRecognition || w.webkitSpeechRecognition || null;
-  };
+  }, []);
 
-  const getOrCreateRecognition = () => {
+  const getOrCreateRecognition = useCallback(() => {
     if (recognitionRef.current) return recognitionRef.current;
     const Ctor = getSpeechRecognitionCtor();
     if (!Ctor) return null;
@@ -84,7 +84,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
 
     recognitionRef.current = rec;
     return rec;
-  };
+  }, [getSpeechRecognitionCtor, lang]);
 
   const startListening = useCallback(() => {
     const rec = getOrCreateRecognition();
@@ -95,7 +95,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
     setTranscript('');
     setIsOpen(true);
     rec.start();
-  }, [lang]);
+  }, [getOrCreateRecognition]);
 
   const stopListening = useCallback(() => {
     const rec = recognitionRef.current;

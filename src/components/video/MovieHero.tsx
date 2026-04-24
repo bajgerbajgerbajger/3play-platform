@@ -5,10 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Play, Plus, Info, Volume2, VolumeX, Clock, Star, Share, ThumbsUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Play, Plus, Volume2, VolumeX, Clock, Share } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Movie, Series } from '@/types';
+import { Movie } from '@/types';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 

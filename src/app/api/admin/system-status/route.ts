@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { updateSystemStatus, addUpdateLog, clearUpdateLogs } from '@/lib/systemStatus';
-import { db } from '@/lib/db';
 
 export async function POST(req: Request) {
   try {

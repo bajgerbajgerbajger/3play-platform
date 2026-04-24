@@ -6,8 +6,7 @@ import {
   ScrollView, 
   ActivityIndicator, 
   SafeAreaView, 
-  StatusBar,
-  Dimensions
+  StatusBar
 } from 'react-native';
 import { Terminal, Activity, Clock, CheckCircle, AlertCircle } from 'lucide-react-native';
 import client from '../api/client';

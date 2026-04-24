@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
 
 interface RequestConfig {
@@ -32,11 +32,14 @@ export function useApi() {
 
 export function useQuery<T>(
   url: string,
-  _options?: { enabled?: boolean; refetchInterval?: number }
+  options?: { enabled?: boolean; refetchInterval?: number }
 ) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const enabled = options?.enabled ?? true;
+  const refetchInterval = options?.refetchInterval;
 
   const fetch = useCallback(async () => {
     try {
@@ -50,6 +53,22 @@ export function useQuery<T>(
       setLoading(false);
     }
   }, [url]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const t = setTimeout(() => {
+      void fetch();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [enabled, fetch]);
+
+  useEffect(() => {
+    if (!enabled || !refetchInterval) return;
+    const id = setInterval(() => {
+      void fetch();
+    }, refetchInterval);
+    return () => clearInterval(id);
+  }, [enabled, refetchInterval, fetch]);
 
   return { data, loading, error, refetch: fetch };
 }

@@ -12,8 +12,13 @@ export const authService = {
       await AsyncStorage.setItem('user', JSON.stringify(user));
       
       return { user, token };
-    } catch (error: any) {
-      throw error.response?.data?.error || 'Přihlášení se nezdařilo';
+    } catch (error: unknown) {
+      const apiError =
+        typeof error === 'object' && error !== null && 'response' in error
+          ? (error as { response?: { data?: { error?: string } } }).response?.data?.error
+          : undefined;
+
+      throw apiError || (error instanceof Error ? error.message : 'Přihlášení se nezdařilo');
     }
   },
 

@@ -7,8 +7,19 @@ import {
   StatusBar
 } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
+import { Movie } from '../types';
 
-export default function PlayerScreen({ route, navigation }: { route: any, navigation: any }) {
+type PlayerRoute = {
+  params: {
+    movie: Movie;
+  };
+};
+
+type PlayerNavigation = {
+  goBack: () => void;
+};
+
+export default function PlayerScreen({ route, navigation }: { route: PlayerRoute; navigation: PlayerNavigation }) {
   const { movie } = route.params;
 
   return (
@@ -23,7 +34,8 @@ export default function PlayerScreen({ route, navigation }: { route: any, naviga
         shouldPlay
         useNativeControls
         style={styles.video}
-        onFullscreenUpdate={({fullscreenUpdate}) => {
+        onFullscreenUpdate={(event: { fullscreenUpdate: number }) => {
+          const { fullscreenUpdate } = event;
           if (fullscreenUpdate === 3) navigation.goBack();
         }}
       />

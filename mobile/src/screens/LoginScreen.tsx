@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import { Play } from 'lucide-react-native';
 import { authService } from '../api/auth';
+import { User } from '../types';
 
-export default function LoginScreen({ onLoginSuccess }: { onLoginSuccess: (user: any) => void }) {
+export default function LoginScreen({ onLoginSuccess }: { onLoginSuccess: (user: User) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,8 +24,10 @@ export default function LoginScreen({ onLoginSuccess }: { onLoginSuccess: (user:
     try {
       const { user: loggedInUser } = await authService.login(email, password);
       onLoginSuccess(loggedInUser);
-    } catch (error: any) {
-      alert(error.message || 'Přihlášení se nezdařilo');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : typeof error === 'string' ? error : 'Přihlášení se nezdařilo';
+      alert(message);
     } finally {
       setLoading(false);
     }

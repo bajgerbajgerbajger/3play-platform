@@ -1,7 +1,6 @@
 'use client';
 
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Button } from '@/components/ui/button';
 import { VideoCard } from '@/components/video/VideoCard';
 import { Movie, Series } from '@/types';
 import { Loader, Search as SearchIcon } from 'lucide-react';

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 // import { redis } from '@/lib/redis';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const checks = {
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       // redis: false,
       application: true,
     },
-    details: {} as any,
+    details: {} as Record<string, string>,
   };
 
   // Check Database

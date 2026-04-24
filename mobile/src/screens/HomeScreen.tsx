@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -20,20 +20,35 @@ const { width } = Dimensions.get('window');
 const COLUMN_COUNT = 2;
 const ITEM_WIDTH = (width - 48) / COLUMN_COUNT;
 
-export default function HomeScreen({ navigation, onLogout }: { navigation: any, onLogout: () => void }) {
+type HomeScreenNavigation = {
+  navigate: (screen: string, params?: Record<string, unknown>) => void;
+};
+
+interface HomeScreenProps {
+  navigation: HomeScreenNavigation;
+  onLogout: () => void;
+}
+
+type A11yImageProps = React.ComponentProps<typeof Image> & { alt: string };
+const A11yImage = Image as unknown as React.ComponentType<A11yImageProps>;
+
+export default function HomeScreen({ navigation, onLogout }: HomeScreenProps) {
   const [loading, setLoading] = useState(false);
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     setLoading(true);
     const data = await movieService.getMovies();
     setMovies(data);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      void fetchMovies();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [fetchMovies]);
 
   const handleLogout = async () => {
     await authService.logout();
@@ -88,7 +103,8 @@ export default function HomeScreen({ navigation, onLogout }: { navigation: any, 
               style={styles.movieCard}
               onPress={() => navigation.navigate('Player', { movie: item })}
             >
-              <Image 
+              <A11yImage
+                alt={item.title}
                 source={{ uri: item.posterUrl || 'https://via.placeholder.com/300x450' }} 
                 style={styles.poster}
               />

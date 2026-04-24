@@ -26,6 +26,7 @@ import {
     X,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -872,10 +873,12 @@ export default function NewContentPage() {
               </div>
               {formData.posterUrl ? (
                 <div className="relative aspect-[2/3] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950 group">
-                  <img
+                  <Image
                     src={formData.posterUrl}
                     alt="Poster preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
                   />
                   <button
                     type="button"
@@ -944,10 +947,12 @@ export default function NewContentPage() {
               </div>
               {formData.backdropUrl ? (
                 <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950 group">
-                  <img
+                  <Image
                     src={formData.backdropUrl}
                     alt="Backdrop preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
                   />
                   <button
                     type="button"

@@ -7,6 +7,7 @@ import type { Episode, Movie, Season, Series } from '@/types';
 import { ChevronLeft, Play } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'sonner';
@@ -274,10 +275,12 @@ export default function WatchPage() {
                     >
                       <div className="relative shrink-0 w-24 aspect-video rounded overflow-hidden bg-zinc-800">
                         {episode.thumbnailUrl ? (
-                          <img
+                          <Image
                             src={episode.thumbnailUrl}
                             alt={episode.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="96px"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">

@@ -1,11 +1,9 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Share, ThumbsUp, Star } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ContentRow } from '@/components/video/ContentRow';
 import { MovieHero } from '@/components/video/MovieHero';
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
+import type { Movie } from '@/types';
 
 async function getMovie(slug: string) {
   const movie = await db.movie.findUnique({
@@ -52,10 +50,12 @@ export default async function MoviePage({ params }: MoviePageProps) {
     movie.genres.map((g) => g.id)
   );
 
+  const heroMovie = movie as unknown as Movie;
+
   return (
     <MainLayout>
       <div className="pb-8">
-        <MovieHero movie={movie as any} />
+        <MovieHero movie={heroMovie} />
 
         {/* Best Moments / Highlights */}
         {movie.highlights && movie.highlights.length > 0 && (

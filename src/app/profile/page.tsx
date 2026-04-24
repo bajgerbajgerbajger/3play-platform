@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { User, Mail, Calendar, Save, X } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { VideoCard } from '@/components/video/VideoCard';
 import { Button } from '@/components/ui/button';
@@ -185,7 +186,13 @@ function ProfileContent() {
         <div className="bg-zinc-950/60 rounded-2xl p-6 border border-zinc-800" suppressHydrationWarning>
           <div className="flex flex-col md:flex-row items-start gap-6" suppressHydrationWarning>
             {user.avatar ? (
-              <img src={user.avatar} alt={user.name || 'User'} className="w-20 h-20 rounded-xl object-cover border border-zinc-800" />
+              <Image
+                src={user.avatar}
+                alt={user.name || 'User'}
+                width={80}
+                height={80}
+                className="w-20 h-20 rounded-xl object-cover border border-zinc-800"
+              />
             ) : (
               <div className="w-20 h-20 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center">
                 <User className="w-10 h-10 text-zinc-500" />

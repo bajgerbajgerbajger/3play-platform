@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Play, Plus, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Movie, Series } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -19,72 +18,12 @@ export function HeroBanner({ items }: HeroBannerProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [showVideo, setShowVideo] = useState(false);
-  const [randomStartTime, setRandomStartTime] = useState(180);
-  const [durations, setDurations] = useState<Record<string, number>>({});
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const blinkOverlayRef = useRef<HTMLDivElement>(null);
 
   const goToNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % items.length);
     setIsLoading(true);
-    setShowVideo(false);
   }, [items.length]);
-
-  const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-    setIsLoading(true);
-    setShowVideo(false);
-  }, [items.length]);
-
-  const handleLoadedMetadata = async () => {
-    setIsLoading(false);
-    const item = items[currentIndex];
-    
-    // Only admins can auto-update duration
-    const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
-
-    if (videoRef.current && item && (!item.duration || item.duration === 0) && !durations[item.id] && isAdmin) {
-      const durationInMinutes = Math.floor(videoRef.current.duration / 60);
-      if (durationInMinutes > 0) {
-        setDurations(prev => ({ ...prev, [item.id]: durationInMinutes }));
-        try {
-          await fetch('/api/movies/update-duration', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: item.id, duration: durationInMinutes }),
-          });
-        } catch (error) {
-          console.error('Failed to auto-update duration:', error);
-        }
-      }
-    }
-  };
-
-  // Generate a random start time (between 10% and 80% of duration if known, else random minutes)
-  const randomizeScene = useCallback((duration?: number) => {
-    const item = items[currentIndex];
-    const totalMinutes = duration || durations[item?.id] || 120; // Default to 2 hours
-    const startMin = Math.floor(totalMinutes * 0.1); // Skip intro
-    const endMin = Math.floor(totalMinutes * 0.8); // Avoid credits
-    const randomSec = Math.floor(Math.random() * (endMin - startMin) * 60) + (startMin * 60);
-    
-    // If we have a video ref and it's already playing, just jump the time for a "fast blink"
-    if (videoRef.current && showVideo) {
-      // Trigger blink effect
-      if (blinkOverlayRef.current) {
-        blinkOverlayRef.current.style.opacity = '1';
-        setTimeout(() => {
-          if (blinkOverlayRef.current) blinkOverlayRef.current.style.opacity = '0';
-        }, 150);
-      }
-      videoRef.current.currentTime = randomSec;
-    } else {
-      setRandomStartTime(randomSec);
-    }
-  }, [showVideo, currentIndex, items, durations]);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -94,66 +33,8 @@ export function HeroBanner({ items }: HeroBannerProps) {
     return () => clearInterval(timer);
   }, [items.length, goToNext]);
 
-  // Handle slide change
-  useEffect(() => {
-    const item = items[currentIndex];
-    
-    // Initial random scene for new slide
-    const totalMinutes = item?.duration || durations[item?.id] || 120;
-    const startMin = Math.floor(totalMinutes * 0.1);
-    const endMin = Math.floor(totalMinutes * 0.8);
-    const initialRandomSec = Math.floor(Math.random() * (endMin - startMin) * 60) + (startMin * 60);
-    
-    // Use timeout to avoid synchronous setState warning
-    const stateTimer = setTimeout(() => {
-      setRandomStartTime(initialRandomSec);
-    }, 0);
-    
-    // Much faster video transition (from 2s to 0.5s)
-    const timer = setTimeout(() => {
-      setShowVideo(true);
-    }, 500);
-
-    // Periodically jump to a new random scene within the same video
-    const sceneTimer = setInterval(() => {
-      if (showVideo) {
-        // No loading or hide video when just jumping scenes, just a quick blink
-        randomizeScene(item?.duration);
-      }
-    }, 12000); // Jump every 12 seconds for variety
-
-    return () => {
-      clearTimeout(stateTimer);
-      clearTimeout(timer);
-      clearInterval(sceneTimer);
-    };
-  }, [currentIndex, items, showVideo, randomizeScene, durations]);
-
   const currentItem = items[currentIndex];
   if (!currentItem) return null;
-
-  const isSeries = 'seasons' in currentItem;
-  const href = isSeries ? `/series/${currentItem.slug}` : `/movies/${currentItem.slug}`;
-
-  // Get preview video URL
-  const getPreviewUrl = () => {
-    if (!isSeries) {
-      return (currentItem as Movie).videoUrl || (currentItem as Movie).trailerUrl;
-    }
-    const series = currentItem as Series;
-    if (series.seasons?.[0]?.episodes?.[0]?.videoUrl) {
-      return series.seasons[0].episodes[0].videoUrl;
-    }
-    return null;
-  };
-
-  const previewUrl = getPreviewUrl();
-
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-    setIsLoading(true);
-    setShowVideo(false);
-  };
 
   const handleAddToQueue = () => {
     const item = items[currentIndex];
