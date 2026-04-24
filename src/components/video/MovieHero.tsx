@@ -4,11 +4,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Play, Plus, Info, Volume2, VolumeX, Clock, Star, Share, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Movie, Series } from '@/types';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface MovieHeroProps {
   movie: Movie;
@@ -16,11 +18,13 @@ interface MovieHeroProps {
 
 export function MovieHero({ movie }: MovieHeroProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isMuted, setIsMuted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [showVideo, setShowVideo] = useState(false);
   const [randomStartTime, setRandomStartTime] = useState(180);
   const [currentDuration, setCurrentDuration] = useState(movie.duration || 0);
+  const [inWatchlist, setInWatchlist] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const blinkOverlayRef = useRef<HTMLDivElement>(null);
 
@@ -98,6 +102,39 @@ export function MovieHero({ movie }: MovieHeroProps) {
   };
 
   const previewUrl = movie.videoUrl || movie.trailerUrl;
+  const watchlistLoginHref = `/auth/login?callbackUrl=${encodeURIComponent(`/movies/${movie.slug}`)}`;
+
+  const handleToggleWatchlist = async () => {
+    const callbackUrl = `/movies/${movie.slug}`;
+    if (!session?.user) {
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentId: movie.id, type: 'movie', toggle: true }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const json = await res.json();
+      setInWatchlist(Boolean(json.inWatchlist));
+      toast.success(json.inWatchlist ? 'Přidáno do watchlistu' : 'Odebráno z watchlistu');
+    } catch {
+      toast.error('Nepodařilo se upravit watchlist');
+    }
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/movies/${movie.slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Odkaz zkopírován');
+    } catch {
+      toast.error('Nepodařilo se zkopírovat odkaz');
+    }
+  };
 
   return (
     <div className="relative h-[65vh] min-h-[450px] w-full group/hero overflow-hidden rounded-3xl" suppressHydrationWarning>
@@ -211,19 +248,37 @@ export function MovieHero({ movie }: MovieHeroProps) {
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-4" suppressHydrationWarning>
-                <Link href={`/watch/${movie.slug}`}>
-                  <Button size="lg" className="bg-red-600 text-white hover:bg-red-500 h-14 px-10 text-lg font-black rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-95 group/play">
-                    <Play className="w-6 h-6 mr-2 fill-current group-hover/play:scale-110 transition-transform" />
-                    PŘEHRÁT
-                  </Button>
+                <Link
+                  href={`/watch/${movie.slug}`}
+                  className="inline-flex items-center justify-center bg-red-600 text-white hover:bg-red-500 h-14 px-10 text-lg font-black rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-95 group/play"
+                >
+                  <Play className="w-6 h-6 mr-2 fill-current group-hover/play:scale-110 transition-transform" />
+                  PŘEHRÁT
                 </Link>
 
-                <Button size="lg" variant="secondary" className="bg-white/10 hover:bg-white/20 text-white h-14 px-8 text-lg font-bold rounded-2xl backdrop-blur-md border border-white/10 transition-all">
+                <Link
+                  href={watchlistLoginHref}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!session?.user) {
+                      window.location.href = watchlistLoginHref;
+                      return;
+                    }
+                    handleToggleWatchlist();
+                  }}
+                  className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white h-14 px-8 text-lg font-bold rounded-2xl backdrop-blur-md border border-white/10 transition-all"
+                >
                   <Plus className="w-6 h-6 mr-2" />
-                  Můj Seznam
-                </Button>
+                  {inWatchlist ? 'V Seznamu' : 'Můj Seznam'}
+                </Link>
 
                 <div className="flex items-center gap-3 ml-auto" suppressHydrationWarning>
+                  <button
+                    onClick={handleShare}
+                    className="w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all"
+                  >
+                    <Share className="w-5 h-5" />
+                  </button>
                   <button 
                     onClick={() => setIsMuted(!isMuted)}
                     className="w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all"

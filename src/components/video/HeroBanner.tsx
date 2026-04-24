@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Play, Plus, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,7 @@ interface HeroBannerProps {
 
 export function HeroBanner({ items }: HeroBannerProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -153,6 +155,22 @@ export function HeroBanner({ items }: HeroBannerProps) {
     setShowVideo(false);
   };
 
+  const handleAddToQueue = () => {
+    const item = items[currentIndex];
+    if (!item) return;
+
+    const isSeriesItem = 'seasons' in item;
+    const firstEpisodeId = isSeriesItem ? (item as Series).seasons?.[0]?.episodes?.[0]?.id : undefined;
+    const callbackUrl = firstEpisodeId ? `/watch/${item.slug}/${firstEpisodeId}` : `/watch/${item.slug}`;
+
+    if (!session?.user) {
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
+
+    router.push(callbackUrl);
+  };
+
   return (
     <div className="relative h-[85vh] w-full bg-black overflow-hidden border-b border-zinc-800">
       {/* Background with Grid/Scanlines */}
@@ -209,6 +227,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
               size="lg" 
               variant="outline"
               className="border-zinc-700 hover:bg-zinc-800 text-white font-bold uppercase tracking-widest rounded-none h-14 px-8"
+              onClick={handleAddToQueue}
             >
               <Plus className="mr-2 h-5 w-5" /> Add to Queue
             </Button>

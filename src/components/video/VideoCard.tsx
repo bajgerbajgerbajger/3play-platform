@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Play, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 import { Movie, Series } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +25,8 @@ export function VideoCard({
   className,
   variant = 'default',
 }: VideoCardProps) {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -82,6 +87,45 @@ export function VideoCard({
   };
 
   const previewUrl = getPreviewUrl();
+
+  const handlePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const seriesFirstEpisodeId = isSeries ? (content as Series).seasons?.[0]?.episodes?.[0]?.id : undefined;
+    const target = isSeries && !seriesFirstEpisodeId ? href : seriesFirstEpisodeId ? `/watch/${content.slug}/${seriesFirstEpisodeId}` : `/watch/${content.slug}`;
+
+    router.push(target);
+  };
+
+  const handleToggleWatchlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const callbackUrl = isSeries ? `/series/${content.slug}` : `/movies/${content.slug}`;
+    if (!session?.user) {
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contentId: content.id,
+          type: isSeries ? 'series' : 'movie',
+          toggle: true,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const json = await res.json();
+      toast.success(json.inWatchlist ? 'Přidáno do watchlistu' : 'Odebráno z watchlistu');
+      router.refresh();
+    } catch {
+      toast.error('Nepodařilo se upravit watchlist');
+    }
+  };
 
   const formatDuration = (minutes: number) => {
     if (!minutes || minutes <= 0) return 'TBA';
@@ -300,6 +344,7 @@ export function VideoCard({
             className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 hover:scale-110 transition-all shadow-lg"
             aria-label="Play"
             title="Play"
+            onClick={handlePlay}
           >
             <Play className="w-5 h-5 text-white ml-0.5 fill-current" />
           </button>
@@ -307,6 +352,7 @@ export function VideoCard({
             className="w-10 h-10 rounded-full bg-zinc-800/80 border border-zinc-700 flex items-center justify-center hover:bg-zinc-700 transition-all shadow-lg"
             aria-label="Add to watchlist"
             title="Add to watchlist"
+            onClick={handleToggleWatchlist}
           >
             <Plus className="w-5 h-5 text-white" />
           </button>

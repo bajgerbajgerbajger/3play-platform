@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Plus, Share, Star } from 'lucide-react';
+import { Play, Star } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ContentRow } from '@/components/video/ContentRow';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { SeriesHeroActions } from '@/components/video/SeriesHeroActions';
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 
@@ -146,22 +146,15 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
                   <div className="flex flex-wrap gap-3 pt-2">
                     {firstEpisode && (
-                      <Link href={`/watch/${series.slug}/${firstEpisode.id}`}>
-                        <Button size="lg" className="bg-white text-black hover:bg-white/90 gap-2">
-                          <Play className="w-5 h-5" fill="black" />
-                          Watch S1 E1
-                        </Button>
+                      <Link
+                        href={`/watch/${series.slug}/${firstEpisode.id}`}
+                        className="inline-flex items-center justify-center h-9 px-3 gap-2 rounded-lg bg-white text-black hover:bg-white/90 font-medium text-sm transition-all"
+                      >
+                        <Play className="w-5 h-5" fill="black" />
+                        Watch S1 E1
                       </Link>
                     )}
-
-                    <Button size="lg" variant="secondary" className="bg-zinc-800 text-white hover:bg-zinc-700 gap-2">
-                      <Plus className="w-5 h-5" />
-                      Add to Watchlist
-                    </Button>
-
-                    <Button size="icon" variant="secondary" className="bg-zinc-800 text-white hover:bg-zinc-700">
-                      <Share className="w-5 h-5" />
-                    </Button>
+                    <SeriesHeroActions seriesId={series.id} slug={series.slug} />
                   </div>
 
                   <p className="text-zinc-300 max-w-3xl">{series.description}</p>

@@ -5,7 +5,15 @@ const nextConfig: NextConfig = {
     appIsrStatus: false,
   },
   // @ts-ignore - this is required for cross-device development in some next versions
-  allowedDevOrigins: ['192.168.1.211', 'localhost:3001'],
+  allowedDevOrigins: [
+    '127.0.0.1',
+    'localhost',
+    'localhost:3000',
+    '192.168.1.211',
+    'localhost:3001',
+    'run-agent-69eb2aa3bc8cc5f30d64e61b-mocnk9jn.remote-agent.svc.cluster.local',
+    'run-agent-69eb2aa3bc8cc5f30d64e61b-mocnk9jn-preview.agent-sandbox-my-c1-gw.trae.ai',
+  ],
   serverExternalPackages: ['better-sqlite3', 'fluent-ffmpeg', 'sharp'],
   typescript: {
     ignoreBuildErrors: true,

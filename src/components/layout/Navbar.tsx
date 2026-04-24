@@ -17,7 +17,7 @@ import {
   History,
   LayoutDashboard,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/ui/Logo';
 import { VoiceSearch } from '@/components/search/VoiceSearch';
@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -124,33 +125,19 @@ export function Navbar() {
 
         {/* Right Section */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0" suppressHydrationWarning>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="sm:hidden text-zinc-300"
-            onClick={() => router.push('/search')}
-          >
+          <Link href="/search" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'sm:hidden text-zinc-300')}>
             <Search className="h-5 w-5" />
-          </Button>
+          </Link>
           {session?.user ? (
             <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-zinc-300 hover:text-white"
-                onClick={() => router.push('/watchlist')}
-              >
+              <Link href="/watchlist" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-zinc-300 hover:text-white')}>
                 <Heart className="h-5 w-5" />
-              </Button>
+              </Link>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-zinc-300 hover:text-white relative"
-              >
+              <Link href="/notifications" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-zinc-300 hover:text-white relative')}>
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-600 rounded-full" />
-              </Button>
+              </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -226,19 +213,12 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                className="text-zinc-300 hover:text-white"
-                onClick={() => router.push('/auth/login')}
-              >
+              <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost' }), 'text-zinc-300 hover:text-white')}>
                 Sign In
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => router.push('/auth/register')}
-              >
+              </Link>
+              <Link href="/auth/register" className={cn(buttonVariants(), 'bg-red-600 hover:bg-red-700 text-white')}>
                 Get Started
-              </Button>
+              </Link>
             </div>
           )}
         </div>
