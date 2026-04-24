@@ -5,7 +5,7 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /
-    dockerCommand: sh -c "npx prisma db push && node server.js"
+    dockerCommand: sh /app/docker-entrypoint.sh
     envVars:
       - key: NODE_ENV
         value: production
