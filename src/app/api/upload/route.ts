@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { uploadLocalFileToMultCloud } from '@/lib/multcloud';
 import fs from 'fs';
 import path from 'path';
-import { pipeline } from 'stream/promises';
 import { v4 as uuidv4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
 
@@ -94,6 +94,29 @@ async function handleSingleFileUpload(formData: FormData) {
     duration = meta?.duration;
   }
 
+  const multcloudUpload = await uploadLocalFileToMultCloud(targetPath, targetName, file.type || undefined);
+  if (multcloudUpload) {
+    const { publicUrl, keepLocal } = multcloudUpload;
+    const localThumbPath = thumbnailUrl ? path.join(uploadsRoot, path.basename(thumbnailUrl)) : null;
+    const thumbUpload =
+      localThumbPath && fs.existsSync(localThumbPath)
+        ? await uploadLocalFileToMultCloud(localThumbPath, path.basename(localThumbPath), 'image/jpeg')
+        : null;
+
+    if (!keepLocal) {
+      await fs.promises.rm(targetPath, { force: true }).catch(() => {});
+      if (localThumbPath) {
+        await fs.promises.rm(localThumbPath, { force: true }).catch(() => {});
+      }
+    }
+
+    return NextResponse.json({
+      url: publicUrl,
+      thumbnailUrl: thumbUpload?.publicUrl ?? null,
+      duration,
+    });
+  }
+
   return NextResponse.json({ 
     url: `/uploads/${targetName}`,
     thumbnailUrl,
@@ -174,6 +197,29 @@ async function handleChunkFinalize(req: NextRequest) {
     ]);
     thumbnailUrl = thumb;
     duration = meta?.duration;
+  }
+
+  const multcloudUpload = await uploadLocalFileToMultCloud(targetPath, targetName);
+  if (multcloudUpload) {
+    const { publicUrl, keepLocal } = multcloudUpload;
+    const localThumbPath = thumbnailUrl ? path.join(uploadsRoot, path.basename(thumbnailUrl)) : null;
+    const thumbUpload =
+      localThumbPath && fs.existsSync(localThumbPath)
+        ? await uploadLocalFileToMultCloud(localThumbPath, path.basename(localThumbPath), 'image/jpeg')
+        : null;
+
+    if (!keepLocal) {
+      await fs.promises.rm(targetPath, { force: true }).catch(() => {});
+      if (localThumbPath) {
+        await fs.promises.rm(localThumbPath, { force: true }).catch(() => {});
+      }
+    }
+
+    return NextResponse.json({
+      url: publicUrl,
+      thumbnailUrl: thumbUpload?.publicUrl ?? null,
+      duration,
+    });
   }
 
   return NextResponse.json({ 

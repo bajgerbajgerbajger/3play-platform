@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { Play, Plus, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Movie, Series } from '@/types';
 import { cn } from '@/lib/utils';
@@ -42,9 +42,10 @@ export function HeroBanner({ items }: HeroBannerProps) {
     const item = items[currentIndex];
     
     // Only admins can auto-update duration
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
+    const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
+    const isMovie = !!item && !('seasons' in item);
 
-    if (videoRef.current && item && (!item.duration || item.duration === 0) && !durations[item.id] && isAdmin) {
+    if (videoRef.current && item && isMovie && (!(item as Movie).duration || (item as Movie).duration === 0) && !durations[item.id] && isAdmin) {
       const durationInMinutes = Math.floor(videoRef.current.duration / 60);
       if (durationInMinutes > 0) {
         setDurations(prev => ({ ...prev, [item.id]: durationInMinutes }));
@@ -97,7 +98,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
     const item = items[currentIndex];
     
     // Initial random scene for new slide
-    const totalMinutes = item?.duration || durations[item?.id] || 120;
+    const totalMinutes = (item && 'duration' in item ? (item as Movie).duration : null) || (item ? durations[item.id] : null) || 120;
     const startMin = Math.floor(totalMinutes * 0.1);
     const endMin = Math.floor(totalMinutes * 0.8);
     const initialRandomSec = Math.floor(Math.random() * (endMin - startMin) * 60) + (startMin * 60);
@@ -116,7 +117,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
     const sceneTimer = setInterval(() => {
       if (showVideo) {
         // No loading or hide video when just jumping scenes, just a quick blink
-        randomizeScene(item?.duration);
+        randomizeScene(item && 'duration' in item ? (item as Movie).duration : undefined);
       }
     }, 12000); // Jump every 12 seconds for variety
 
@@ -196,15 +197,14 @@ export function HeroBanner({ items }: HeroBannerProps) {
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-4 animate-in fade-in slide-in-from-top duration-1000 delay-300">
-            <Button 
-              size="lg" 
-              className="bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-none h-14 px-8 shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all hover:scale-105"
-              asChild
+            <Link
+              href={`/${'seasons' in items[currentIndex] ? 'series' : 'movies'}/${items[currentIndex].slug}`}
+              className={cn(
+                buttonVariants({ size: 'lg', className: 'bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-none h-14 px-8 shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all hover:scale-105' })
+              )}
             >
-              <Link href={`/${'seasons' in items[currentIndex] ? 'series' : 'movies'}/${items[currentIndex].slug}`}>
-                <Play className="mr-2 h-5 w-5 fill-current" /> Initialize Stream
-              </Link>
-            </Button>
+              <Play className="mr-2 h-5 w-5 fill-current" /> Initialize Stream
+            </Link>
             <Button 
               size="lg" 
               variant="outline"
@@ -225,3 +225,4 @@ export function HeroBanner({ items }: HeroBannerProps) {
       </div>
     </div>
   );
+}

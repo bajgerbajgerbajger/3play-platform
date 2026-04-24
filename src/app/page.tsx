@@ -4,6 +4,8 @@ import { AIHighlightBanner } from '@/components/video/AIHighlightBanner';
 import { ContentRow } from '@/components/video/ContentRow';
 import { db } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 async function getHomePageData() {
   try {
     const [highlights, featured, newlyAdded, trending, popularMovies, popularSeries, topRated] = await Promise.all([

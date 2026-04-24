@@ -7,6 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --font-sans: var(--font-sans);
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-heading: var(--font-sans);
@@ -28,11 +31,21 @@
   --foreground: #FAFAFA;
   --card: #09090B;
   --card-foreground: #FAFAFA;
+  --popover: #09090B;
+  --popover-foreground: #FAFAFA;
   --primary: #DC2626;
   --primary-foreground: #FFFFFF;
   --secondary: #18181B;
   --secondary-foreground: #FAFAFA;
+  --muted: #18181B;
+  --muted-foreground: #A1A1AA;
+  --accent: #18181B;
+  --accent-foreground: #FAFAFA;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
   --border: #27272A;
+  --input: #27272A;
+  --ring: #DC2626;
   --radius: 0px; /* Force sharp edges globally */
 }
 

@@ -32,7 +32,9 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Notify Build Start
         run: |
           curl -X POST https://${{ secrets.APP_URL }}/api/admin/system-status \
@@ -41,6 +43,33 @@ jobs:
           -d '{"progress": 30, "log": "Sestavování webové aplikace...", "message": "Sestavování webové aplikace"}'
       - name: Build Web
         run: npm run build
+      - name: Trigger DeployHQ
+        env:
+          DEPLOYHQ_ACCOUNT: ${{ secrets.DEPLOYHQ_ACCOUNT }}
+          DEPLOYHQ_USER: ${{ secrets.DEPLOYHQ_USER }}
+          DEPLOYHQ_API_KEY: ${{ secrets.DEPLOYHQ_API_KEY }}
+          DEPLOYHQ_PROJECT: ${{ secrets.DEPLOYHQ_PROJECT }}
+          DEPLOYHQ_PARENT_IDENTIFIER: ${{ secrets.DEPLOYHQ_PARENT_IDENTIFIER }}
+          DEPLOY_END_REV: ${{ github.sha }}
+        run: |
+          curl --fail --silent --show-error \
+          -H "Content-type: application/json" \
+          -H "Accept: application/json" \
+          --user "${DEPLOYHQ_USER}:${DEPLOYHQ_API_KEY}" \
+          -X POST \
+          -d "{
+            \"deployment\": {
+              \"parent_identifier\": \"${DEPLOYHQ_PARENT_IDENTIFIER}\",
+              \"start_revision\": \"\",
+              \"end_revision\": \"${DEPLOY_END_REV}\",
+              \"branch\": \"main\",
+              \"mode\": \"queue\",
+              \"copy_config_files\": true,
+            \"run_build_commands\": false,
+              \"use_build_cache\": true
+            }
+          }" \
+          "https://${DEPLOYHQ_ACCOUNT}.deployhq.com/projects/${DEPLOYHQ_PROJECT}/deployments"
       - name: Notify Build Success
         run: |
           curl -X POST https://${{ secrets.APP_URL }}/api/admin/system-status \
@@ -51,6 +80,7 @@ jobs:
   build-mobile:
     needs: build-web
     runs-on: ubuntu-latest
+    if: ${{ secrets.EXPO_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Expo
@@ -65,7 +95,7 @@ jobs:
           -H "x-update-secret: ${{ secrets.UPDATE_SECRET }}" \
           -d '{"progress": 70, "log": "Příprava mobilních aplikací (Expo)...", "message": "Synchronizace s mobilními platformami"}'
       - name: Install Mobile Deps
-        run: cd mobile && npm install
+        run: cd mobile && npm ci
       - name: Notify Success
         run: |
           curl -X POST https://${{ secrets.APP_URL }}/api/admin/system-status \
