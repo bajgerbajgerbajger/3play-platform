@@ -5,10 +5,12 @@ FROM node:20-alpine AS base
 FROM base AS deps
 RUN apk add --no-cache libc6-compat ffmpeg
 WORKDIR /app
+ENV NODE_ENV=development
+ENV NPM_CONFIG_PRODUCTION=false
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --include=dev
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
