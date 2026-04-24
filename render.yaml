@@ -1,14 +1,27 @@
 services:
   - type: web
     name: 3play-platform
-    runtime: node
-    plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    env: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /
+    dockerCommand: sh -c "npx prisma db push && node server.js"
     envVars:
       - key: NODE_ENV
         value: production
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        value: file:/data/prod.db
       - key: NEXTAUTH_URL
         sync: false
       - key: NEXTAUTH_SECRET
         sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
