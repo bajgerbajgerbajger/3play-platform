@@ -178,6 +178,7 @@ model Episode {
   releaseDate      DateTime?
   thumbnailUrl     String?
   videoUrl         String?
+  isPublished      Boolean            @default(false)
   viewCount        Int                @default(0)
   averageRating    Float              @default(0)
   createdAt        DateTime           @default(now())
