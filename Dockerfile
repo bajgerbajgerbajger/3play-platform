@@ -12,6 +12,7 @@ ENV NPM_CONFIG_PRODUCTION=false
 
 # Copy package files
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 RUN npm ci
 
 # Rebuild the source code only when needed
