@@ -64,8 +64,21 @@ export function ContentActions({ id, type, title, slug }: ContentActionsProps) {
   };
 
   const handleRename = () => {
-    toast.info(`Renaming ${title}...`);
-    // Logic for renaming
+    const nextTitle = window.prompt('New title', title);
+    if (!nextTitle) return;
+    const trimmed = nextTitle.trim();
+    if (!trimmed || trimmed === title) return;
+
+    axios
+      .patch('/api/admin/content', { id, type, title: trimmed })
+      .then(() => {
+        toast.success('Renamed');
+        router.refresh();
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Rename failed';
+        toast.error(`Rename failed: ${message}`);
+      });
   };
 
   const handleViewDetails = () => {

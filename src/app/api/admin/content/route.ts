@@ -1,18 +1,53 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
+import { assertAdmin } from '@/lib/adminAuth';
+
+function intOrUndefined(value: unknown) {
+  const n = Number.parseInt(String(value), 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+export async function GET(req: Request) {
+  try {
+    const authError = await assertAdmin();
+    if (authError) return authError;
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const type = searchParams.get('type');
+
+    if (!id || (type !== 'movie' && type !== 'series')) {
+      return new NextResponse('Missing required fields', { status: 400 });
+    }
+
+    if (type === 'movie') {
+      const movie = await db.movie.findUnique({
+        where: { id },
+        include: { genres: true },
+      });
+      if (!movie) return new NextResponse('Not Found', { status: 404 });
+      return NextResponse.json(movie);
+    }
+
+    const series = await db.series.findUnique({
+      where: { id },
+      include: { genres: true },
+    });
+    if (!series) return new NextResponse('Not Found', { status: 404 });
+    return NextResponse.json(series);
+  } catch (error) {
+    console.error('[ADMIN_CONTENT_GET]', error);
+    return new NextResponse('Internal Error', { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+    const authError = await assertAdmin();
+    if (authError) return authError;
 
     const body = await req.json();
     const { 
@@ -87,13 +122,86 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const authError = await assertAdmin();
+    if (authError) return authError;
+
+    const body = await req.json();
+    const type = body?.type;
+    const id = body?.id;
+
+    if (!id || (type !== 'movie' && type !== 'series')) {
+      return new NextResponse('Missing required fields', { status: 400 });
+    }
+
+    const genreIds = Array.isArray(body.genreIds) ? body.genreIds : undefined;
+
+    if (type === 'movie') {
+      const movie = await db.movie.update({
+        where: { id },
+        data: {
+          title: typeof body.title === 'string' ? body.title : undefined,
+          slug: typeof body.slug === 'string' ? body.slug : undefined,
+          description: typeof body.description === 'string' ? body.description : undefined,
+          synopsis: typeof body.synopsis === 'string' ? body.synopsis : undefined,
+          releaseYear:
+            body.releaseYear !== undefined ? intOrUndefined(body.releaseYear) : undefined,
+          duration:
+            body.duration !== undefined ? intOrUndefined(body.duration) : undefined,
+          rating: typeof body.rating === 'string' ? body.rating : undefined,
+          posterUrl: typeof body.posterUrl === 'string' ? body.posterUrl : undefined,
+          backdropUrl: typeof body.backdropUrl === 'string' ? body.backdropUrl : undefined,
+          trailerUrl: typeof body.trailerUrl === 'string' ? body.trailerUrl : undefined,
+          videoUrl: typeof body.videoUrl === 'string' ? body.videoUrl : undefined,
+          isPremium: typeof body.isPremium === 'boolean' ? body.isPremium : undefined,
+          isPublished: typeof body.isPublished === 'boolean' ? body.isPublished : undefined,
+          genres: genreIds ? { set: genreIds.map((gid: string) => ({ id: gid })) } : undefined,
+        },
+        include: { genres: true },
+      });
+      revalidatePath('/admin/content');
+      revalidatePath(`/movies/${movie.slug}`);
+      revalidatePath('/browse');
+      return NextResponse.json(movie);
+    }
+
+    const series = await db.series.update({
+      where: { id },
+      data: {
+        title: typeof body.title === 'string' ? body.title : undefined,
+        slug: typeof body.slug === 'string' ? body.slug : undefined,
+        description: typeof body.description === 'string' ? body.description : undefined,
+        synopsis: typeof body.synopsis === 'string' ? body.synopsis : undefined,
+        startYear:
+          body.startYear !== undefined ? intOrUndefined(body.startYear) : undefined,
+        endYear: body.endYear !== undefined && body.endYear !== null ? intOrUndefined(body.endYear) : undefined,
+        rating: typeof body.rating === 'string' ? body.rating : undefined,
+        posterUrl: typeof body.posterUrl === 'string' ? body.posterUrl : undefined,
+        backdropUrl: typeof body.backdropUrl === 'string' ? body.backdropUrl : undefined,
+        trailerUrl: typeof body.trailerUrl === 'string' ? body.trailerUrl : undefined,
+        isPremium: typeof body.isPremium === 'boolean' ? body.isPremium : undefined,
+        isPublished: typeof body.isPublished === 'boolean' ? body.isPublished : undefined,
+        totalSeasons:
+          body.totalSeasons !== undefined ? intOrUndefined(body.totalSeasons) : undefined,
+        genres: genreIds ? { set: genreIds.map((gid: string) => ({ id: gid })) } : undefined,
+      },
+      include: { genres: true },
+    });
+    revalidatePath('/admin/content');
+    revalidatePath(`/series/${series.slug}`);
+    revalidatePath('/browse');
+    return NextResponse.json(series);
+  } catch (error) {
+    console.error('[ADMIN_CONTENT_PATCH]', error);
+    return new NextResponse('Internal Error', { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+    const authError = await assertAdmin();
+    if (authError) return authError;
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
