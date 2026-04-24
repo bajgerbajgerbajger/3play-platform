@@ -225,3 +225,4 @@ export function HeroBanner({ items }: HeroBannerProps) {
       </div>
     </div>
   );
+}
