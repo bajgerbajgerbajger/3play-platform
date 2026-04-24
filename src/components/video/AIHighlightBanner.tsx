@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Volume2, VolumeX, Sparkles, Play, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,8 +22,12 @@ export function AIHighlightBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % highlights.length);
+    setIsLoading(true);
+  }, [highlights.length]);
 
   useEffect(() => {
     const fetchHighlights = async () => {
@@ -45,7 +49,6 @@ export function AIHighlightBanner() {
     if (videoRef.current) {
       videoRef.current.currentTime = current.startTime;
       videoRef.current.play().catch(e => console.log("Autoplay blocked", e));
-      setIsPlaying(true);
     }
 
     // Set a timer to switch to the next highlight when this one ends
@@ -55,12 +58,7 @@ export function AIHighlightBanner() {
     }, Math.max(duration, 10000)); // Play for at least 10s or until endTime
 
     return () => clearTimeout(timer);
-  }, [currentIndex, highlights]);
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % highlights.length);
-    setIsLoading(true);
-  };
+  }, [currentIndex, highlights, handleNext]);
 
   const current = highlights[currentIndex];
 

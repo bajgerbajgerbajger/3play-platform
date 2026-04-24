@@ -4,12 +4,11 @@ FROM node:22-bookworm-slim AS base
 # Install dependencies only when needed
 FROM base AS deps
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg ca-certificates \
+  && apt-get install -y --no-install-recommends ffmpeg ca-certificates python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=development
 ENV NPM_CONFIG_PRODUCTION=false
-ENV NPM_CONFIG_IGNORE_SCRIPTS=true
 
 # Copy package files
 COPY package.json package-lock.json* ./

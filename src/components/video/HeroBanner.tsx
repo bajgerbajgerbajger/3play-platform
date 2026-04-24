@@ -44,7 +44,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
     const item = items[currentIndex];
     
     // Only admins can auto-update duration
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
+    const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
 
     if (videoRef.current && item && (!item.duration || item.duration === 0) && !durations[item.id] && isAdmin) {
       const durationInMinutes = Math.floor(videoRef.current.duration / 60);

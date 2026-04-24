@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Mic, MicOff, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -12,6 +12,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 
+type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
 interface VoiceSearchProps {
   onResult: (text: string) => void;
   className?: string;
@@ -21,67 +23,87 @@ interface VoiceSearchProps {
 export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearchProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const onResultRef = useRef(onResult);
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = true;
-      rec.lang = lang; // Use the lang prop
+    onResultRef.current = onResult;
+  }, [onResult]);
 
-      rec.onstart = () => {
-        setIsListening(true);
-        setError(null);
-      };
-
-      rec.onresult = (event: any) => {
-        const current = event.resultIndex;
-        const transcriptText = event.results[current][0].transcript;
-        setTranscript(transcriptText);
-        
-        if (event.results[current].isFinal) {
-          onResult(transcriptText);
-          setIsOpen(false);
-          setIsListening(false);
-        }
-      };
-
-      rec.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setError(`Chyba: ${event.error}`);
-        setIsListening(false);
-      };
-
-      rec.onend = () => {
-        setIsListening(false);
-      };
-
-      setRecognition(rec);
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = lang;
     }
-  }, [onResult, lang]); // Add lang to dependency array
+  }, [lang]);
+
+  const getSpeechRecognitionCtor = () => {
+    const w = window as unknown as {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    return w.SpeechRecognition || w.webkitSpeechRecognition || null;
+  };
+
+  const getOrCreateRecognition = () => {
+    if (recognitionRef.current) return recognitionRef.current;
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) return null;
+
+    const rec = new Ctor();
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.lang = lang;
+
+    rec.onstart = () => {
+      setIsListening(true);
+      setError(null);
+    };
+
+    rec.onresult = (event) => {
+      const current = event.resultIndex;
+      const transcriptText = event.results[current][0].transcript;
+      setTranscript(transcriptText);
+
+      if (event.results[current].isFinal) {
+        onResultRef.current(transcriptText);
+        setIsOpen(false);
+        setIsListening(false);
+      }
+    };
+
+    rec.onerror = (event) => {
+      setError(`Chyba: ${event.error}`);
+      setIsListening(false);
+    };
+
+    rec.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = rec;
+    return rec;
+  };
 
   const startListening = useCallback(() => {
-    if (recognition) {
-      setTranscript('');
-      setIsOpen(true);
-      recognition.start();
-    } else {
+    const rec = getOrCreateRecognition();
+    if (!rec) {
       alert('Hlasové vyhledávání není ve vašem prohlížeči podporováno.');
+      return;
     }
-  }, [recognition]);
+    setTranscript('');
+    setIsOpen(true);
+    rec.start();
+  }, [lang]);
 
   const stopListening = useCallback(() => {
-    if (recognition) {
-      recognition.stop();
+    const rec = recognitionRef.current;
+    if (rec) {
+      rec.stop();
       setIsListening(false);
     }
-  }, [recognition]);
-
-  if (!recognition) return null;
+  }, []);
 
   return (
     <>
@@ -131,7 +153,7 @@ export function VoiceSearch({ onResult, className, lang = 'cs-CZ' }: VoiceSearch
 
             <div className="text-center min-h-[2rem]">
               {transcript ? (
-                <p className="text-lg font-medium text-white italic">"{transcript}"</p>
+                <p className="text-lg font-medium text-white italic">&ldquo;{transcript}&rdquo;</p>
               ) : (
                 <p className="text-zinc-500">Naslouchám...</p>
               )}

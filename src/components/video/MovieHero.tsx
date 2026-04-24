@@ -32,7 +32,7 @@ export function MovieHero({ movie }: MovieHeroProps) {
     setIsLoading(false);
     
     // Only admins can auto-update duration
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
+    const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
 
     if (videoRef.current && (!currentDuration || currentDuration === 0) && isAdmin) {
       const durationInMinutes = Math.floor(videoRef.current.duration / 60);

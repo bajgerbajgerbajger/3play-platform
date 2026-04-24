@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
-  // @ts-ignore - this is required for cross-device development in some next versions
+  // @ts-expect-error - this is required for cross-device development in some next versions
   allowedDevOrigins: [
     '127.0.0.1',
     'localhost',

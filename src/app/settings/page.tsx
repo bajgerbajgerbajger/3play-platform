@@ -2,35 +2,41 @@
 
 import { useAuth, useRequireAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Bell, Lock, Moon, Volume2, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+type AppSettings = {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  darkMode: boolean;
+  volume: number;
+};
+
+const defaultSettings: AppSettings = {
+  emailNotifications: true,
+  pushNotifications: true,
+  darkMode: true,
+  volume: 80,
+};
+
 export default function SettingsPage() {
   useRequireAuth();
-  const { user } = useAuth();
+  useAuth();
   const router = useRouter();
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    darkMode: true,
-    volume: 80,
-  });
-  const [savedSettings, setSavedSettings] = useState(settings);
-
-  useEffect(() => {
+  const [settings, setSettings] = useState<AppSettings>(() => {
     try {
       const raw = localStorage.getItem('app_settings');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setSettings(parsed);
-        setSavedSettings(parsed);
-      }
+      if (!raw) return defaultSettings;
+      const parsed = JSON.parse(raw) as Partial<AppSettings>;
+      return { ...defaultSettings, ...parsed };
     } catch {
+      return defaultSettings;
     }
-  }, []);
+  });
+  const [savedSettings, setSavedSettings] = useState<AppSettings>(settings);
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: '/' });
