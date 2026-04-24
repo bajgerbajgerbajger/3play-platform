@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ export default function SeasonsAdminPage({ params }: { params: { id: string } })
     [seasons]
   );
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setIsLoading(true);
     try {
       const [seriesRes, seasonsRes] = await Promise.all([
@@ -54,11 +54,11 @@ export default function SeasonsAdminPage({ params }: { params: { id: string } })
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id]);
 
   useEffect(() => {
     load();
-  }, [params.id]);
+  }, [load]);
 
   const createSeason = async () => {
     const n = Number(newSeasonNumber);
@@ -173,4 +173,3 @@ export default function SeasonsAdminPage({ params }: { params: { id: string } })
     </div>
   );
 }
-

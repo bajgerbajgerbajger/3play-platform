@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -50,7 +50,7 @@ export default function EpisodesAdminPage({ params }: { params: { id: string; se
     [episodes]
   );
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setIsLoading(true);
     try {
       const [seasonsRes, episodesRes] = await Promise.all([
@@ -73,11 +73,11 @@ export default function EpisodesAdminPage({ params }: { params: { id: string; se
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id, params.seasonId]);
 
   useEffect(() => {
     load();
-  }, [params.id, params.seasonId]);
+  }, [load]);
 
   const uploadVideo = async (file: File) => {
     setUploadPct(0);
@@ -326,4 +326,3 @@ export default function EpisodesAdminPage({ params }: { params: { id: string; se
     </div>
   );
 }
-
