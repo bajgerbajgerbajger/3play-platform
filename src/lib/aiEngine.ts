@@ -3,9 +3,17 @@ import { db } from './db';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient() {
+  if (openaiClient) return openaiClient;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not set');
+  }
+  openaiClient = new OpenAI({ apiKey });
+  return openaiClient;
+}
 
 const HighlightSchema = z.object({
   highlights: z.array(z.object({
@@ -19,6 +27,7 @@ const HighlightSchema = z.object({
 
 export async function analyzeContentForHighlights(contentId: string, type: 'movie' | 'episode') {
   try {
+    const openai = getOpenAIClient();
     const content = type === 'movie' 
       ? await db.movie.findUnique({ where: { id: contentId }, include: { genres: true } })
       : await db.episode.findUnique({ where: { id: contentId }, include: { season: { include: { series: { include: { genres: true } } } } } });
