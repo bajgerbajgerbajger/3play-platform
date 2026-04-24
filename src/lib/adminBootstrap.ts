@@ -12,9 +12,6 @@ export async function ensureAdminUser(prisma: PrismaClient) {
   const cfg = getAdminConfig();
 
   if (!cfg) {
-    const userCount = await prisma.user.count();
-    if (userCount !== 0) return;
-
     const email = 'admin@3play.com';
     const password = 'admin123';
     const hashed = await bcrypt.hash(password, 12);
@@ -34,4 +31,3 @@ export async function ensureAdminUser(prisma: PrismaClient) {
     create: { email: cfg.email, name: 'Admin User', password: hashed, role: 'ADMIN' },
   });
 }
-
