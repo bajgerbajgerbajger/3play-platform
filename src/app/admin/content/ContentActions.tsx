@@ -5,7 +5,6 @@ import {
   Edit2, 
   Trash2, 
   Share2, 
-  Scissors, 
   Copy, 
   Eye,
   Type,
@@ -161,10 +160,6 @@ export function ContentActions({ id, type, title, slug }: ContentActionsProps) {
           <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={handleCopyId}>
             <Copy className="mr-2 h-4 w-4" />
             <span>Copy ID</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={() => toast.message('Cut is not available here')}>
-            <Scissors className="mr-2 h-4 w-4" />
-            <span>Cut</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-zinc-800" />
           <DropdownMenuItem 
