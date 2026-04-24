@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
+import { assertAdmin } from '@/lib/adminAuth';
+import { webdavPutBuffer, webdavPutFile } from '@/lib/webdav';
 
 export const dynamic = 'force-dynamic';
 // Set max duration to 2 hours for large file assembly
@@ -14,18 +14,12 @@ export const api = {
   bodyParser: false,
 };
 
-const uploadsRoot = path.join(process.cwd(), 'public', 'uploads');
 const tempRoot = path.join(process.cwd(), '.upload-temp');
 
 function ensureDir(dirPath: string) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
-}
-
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  return session && session.user.role === 'ADMIN';
 }
 
 async function getVideoMetadata(videoPath: string): Promise<{ duration: number } | null> {
@@ -42,26 +36,35 @@ async function getVideoMetadata(videoPath: string): Promise<{ duration: number }
   });
 }
 
-async function extractThumbnail(videoPath: string, outputName: string): Promise<string | null> {
+async function extractThumbnail(videoPath: string, outputDir: string, outputName: string): Promise<string | null> {
   return new Promise((resolve) => {
-    // Get a random timestamp between 5% and 85% to avoid credits or intro black screens
     const randomPercent = Math.floor(Math.random() * 80) + 5;
     
     ffmpeg(videoPath)
       .screenshots({
         timestamps: [`${randomPercent}%`],
         filename: `${outputName}.jpg`,
-        folder: uploadsRoot,
+        folder: outputDir,
         size: '1280x720'
       })
       .on('end', () => {
-        resolve(`/uploads/${outputName}.jpg`);
+        resolve(path.join(outputDir, `${outputName}.jpg`));
       })
       .on('error', (err) => {
         console.error('FFmpeg thumbnail error:', err);
         resolve(null);
       });
   });
+}
+
+function isVideoExtension(extension: string) {
+  const videoExtensions = ['.mp4', '.mkv', '.webm', '.avi', '.mov'];
+  return videoExtensions.includes(extension);
+}
+
+function mediaUrl(remotePath: string) {
+  const clean = remotePath.replace(/^\/+/, '');
+  return `/api/media/${clean}`;
 }
 
 async function handleSingleFileUpload(formData: FormData) {
@@ -71,32 +74,53 @@ async function handleSingleFileUpload(formData: FormData) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  ensureDir(uploadsRoot);
+  ensureDir(tempRoot);
 
   const extension = path.extname(file.name).toLowerCase();
   const baseName = uuidv4();
-  const targetName = `${baseName}${extension}`;
-  const targetPath = path.join(uploadsRoot, targetName);
   const buffer = Buffer.from(await file.arrayBuffer());
-
-  await fs.promises.writeFile(targetPath, buffer);
 
   let thumbnailUrl = null;
   let duration = null;
-  const videoExtensions = ['.mp4', '.mkv', '.webm', '.avi', '.mov'];
-  if (videoExtensions.includes(extension)) {
-    const [thumb, meta] = await Promise.all([
-      extractThumbnail(targetPath, `${baseName}-thumb`),
-      getVideoMetadata(targetPath)
+  if (isVideoExtension(extension)) {
+    const workDir = path.join(tempRoot, 'single');
+    ensureDir(workDir);
+
+    const localVideoPath = path.join(workDir, `${baseName}${extension}`);
+    await fs.promises.writeFile(localVideoPath, buffer);
+
+    const [thumbPath, meta] = await Promise.all([
+      extractThumbnail(localVideoPath, workDir, `${baseName}-thumb`),
+      getVideoMetadata(localVideoPath),
     ]);
-    thumbnailUrl = thumb;
-    duration = meta?.duration;
+
+    duration = meta?.duration ?? null;
+
+    const remoteVideoPath = `3play/uploads/videos/${baseName}${extension}`;
+    await webdavPutFile(remoteVideoPath, localVideoPath);
+
+    if (thumbPath) {
+      const remoteThumbPath = `3play/uploads/thumbs/${baseName}-thumb.jpg`;
+      await webdavPutFile(remoteThumbPath, thumbPath, 'image/jpeg');
+      thumbnailUrl = mediaUrl(remoteThumbPath);
+      await fs.promises.rm(thumbPath, { force: true });
+    }
+
+    await fs.promises.rm(localVideoPath, { force: true });
+
+    return NextResponse.json({
+      url: mediaUrl(remoteVideoPath),
+      thumbnailUrl,
+      duration,
+    });
   }
 
-  return NextResponse.json({ 
-    url: `/uploads/${targetName}`,
+  const remoteImagePath = `3play/uploads/images/${baseName}${extension}`;
+  await webdavPutBuffer(remoteImagePath, buffer);
+  return NextResponse.json({
+    url: mediaUrl(remoteImagePath),
     thumbnailUrl,
-    duration
+    duration,
   });
 }
 
@@ -130,13 +154,14 @@ async function handleChunkFinalize(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid finalize payload' }, { status: 400 });
   }
 
-  ensureDir(uploadsRoot);
+  ensureDir(tempRoot);
 
   const uploadTempDir = path.join(tempRoot, uploadId);
   const extension = path.extname(fileName).toLowerCase();
   const baseName = uuidv4();
-  const targetName = `${baseName}${extension}`;
-  const targetPath = path.join(uploadsRoot, targetName);
+  const assembledDir = path.join(tempRoot, 'assembled');
+  ensureDir(assembledDir);
+  const targetPath = path.join(assembledDir, `${baseName}${extension}`);
   const writeStream = fs.createWriteStream(targetPath);
 
   try {
@@ -165,30 +190,47 @@ async function handleChunkFinalize(req: NextRequest) {
 
   let thumbnailUrl = null;
   let duration = null;
-  const videoExtensions = ['.mp4', '.mkv', '.webm', '.avi', '.mov'];
-  if (videoExtensions.includes(extension)) {
-    const [thumb, meta] = await Promise.all([
-      extractThumbnail(targetPath, `${baseName}-thumb`),
-      getVideoMetadata(targetPath)
+  if (isVideoExtension(extension)) {
+    const [thumbPath, meta] = await Promise.all([
+      extractThumbnail(targetPath, assembledDir, `${baseName}-thumb`),
+      getVideoMetadata(targetPath),
     ]);
-    thumbnailUrl = thumb;
-    duration = meta?.duration;
+
+    duration = meta?.duration ?? null;
+
+    const remoteVideoPath = `3play/uploads/videos/${baseName}${extension}`;
+    await webdavPutFile(remoteVideoPath, targetPath);
+
+    if (thumbPath) {
+      const remoteThumbPath = `3play/uploads/thumbs/${baseName}-thumb.jpg`;
+      await webdavPutFile(remoteThumbPath, thumbPath, 'image/jpeg');
+      thumbnailUrl = mediaUrl(remoteThumbPath);
+      await fs.promises.rm(thumbPath, { force: true });
+    }
+
+    await fs.promises.rm(targetPath, { force: true });
+
+    return NextResponse.json({
+      url: mediaUrl(remoteVideoPath),
+      thumbnailUrl,
+      duration,
+    });
   }
 
-  return NextResponse.json({ 
-    url: `/uploads/${targetName}`,
+  const remotePath = `3play/uploads/files/${baseName}${extension}`;
+  await webdavPutFile(remotePath, targetPath);
+  await fs.promises.rm(targetPath, { force: true });
+  return NextResponse.json({
+    url: mediaUrl(remotePath),
     thumbnailUrl,
-    duration
+    duration,
   });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const isAdmin = await requireAdmin();
-
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await assertAdmin();
+    if (authError) return authError;
 
     const contentType = req.headers.get('content-type') || '';
 
