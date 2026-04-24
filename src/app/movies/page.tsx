@@ -2,6 +2,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { VideoCard } from '@/components/video/VideoCard';
 import { db } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 async function getMovies() {
   return db.movie.findMany({
     where: { isPublished: true },

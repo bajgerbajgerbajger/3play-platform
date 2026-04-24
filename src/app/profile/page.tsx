@@ -2,7 +2,7 @@
 
 import { useAuth, useRequireAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { User, Mail, Calendar, Save, X } from 'lucide-react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { VideoCard } from '@/components/video/VideoCard';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import type { Episode, Movie, Series } from '@/types';
 
 interface UserProfile {
   id: string;
@@ -23,6 +24,31 @@ interface UserProfile {
   }>;
 }
 
+type HistoryEpisode = Episode & {
+  season?: {
+    series?: Series | null;
+  } | null;
+};
+
+type HistoryItem = {
+  id: string;
+  movie?: Movie | null;
+  episode?: HistoryEpisode | null;
+};
+
+type ContinueWatchingItem = {
+  id: string;
+  percent: number;
+  content: Movie | Series;
+  episode?: Episode | null;
+};
+
+type FavoriteItem = {
+  id: string;
+  movie?: Movie | null;
+  series?: Series | null;
+};
+
 function ProfileContent() {
   useRequireAuth();
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,9 +60,9 @@ function ProfileContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [draftAvatar, setDraftAvatar] = useState('');
-  const [history, setHistory] = useState<any[]>([]);
-  const [continueWatching, setContinueWatching] = useState<any[]>([]);
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
+  const [favorites, setFavorites] = useState<Array<Movie | Series>>([]);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -56,6 +82,34 @@ function ProfileContent() {
       setLoading(false);
     }
   };
+
+  const loadTabData = useCallback(async (activeTab: string) => {
+    try {
+      if (activeTab === 'history') {
+        const res = await axios.get<{ items?: HistoryItem[] }>('/api/history');
+        setHistory(res.data.items ?? []);
+      }
+      if (activeTab === 'continue') {
+        const res = await axios.get<{ items?: ContinueWatchingItem[] }>('/api/continue-watching');
+        setContinueWatching(res.data.items ?? []);
+      }
+      if (activeTab === 'favorites') {
+        const res = await axios.get<{ items?: FavoriteItem[] }>('/api/favorites');
+        const mapped = (res.data.items ?? [])
+          .map((x) => x.movie ?? x.series)
+          .filter((x): x is Movie | Series => Boolean(x));
+        setFavorites(mapped);
+      }
+    } catch {
+      toast.error('Nepodařilo se načíst data profilu');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tab !== 'overview' && !isLoading && !loading && isAuthenticated) {
+      void loadTabData(tab);
+    }
+  }, [tab, isLoading, loading, isAuthenticated, loadTabData]);
 
   if (isLoading || loading) {
     return (
@@ -77,34 +131,6 @@ function ProfileContent() {
       </div>
     );
   }
-
-  const loadTabData = async () => {
-    try {
-      if (tab === 'history') {
-        const res = await axios.get('/api/history');
-        setHistory(res.data.items ?? []);
-      }
-      if (tab === 'continue') {
-        const res = await axios.get('/api/continue-watching');
-        setContinueWatching(res.data.items ?? []);
-      }
-      if (tab === 'favorites') {
-        const res = await axios.get('/api/favorites');
-        const mapped = (res.data.items ?? [])
-          .map((x: any) => x.movie ?? x.series)
-          .filter(Boolean);
-        setFavorites(mapped);
-      }
-    } catch {
-      toast.error('Nepodařilo se načíst data profilu');
-    }
-  };
-
-  useEffect(() => {
-    if (tab !== 'overview') {
-      loadTabData();
-    }
-  }, [tab]);
 
   const handleSaveProfile = async () => {
     try {
@@ -271,7 +297,7 @@ function ProfileContent() {
           {favorites.length === 0 ? (
             <div className="text-zinc-400">Žádné favorites.</div>
           ) : (
-            favorites.map((item: any) => <VideoCard key={item.id} content={item} />)
+            favorites.map((item) => <VideoCard key={item.id} content={item} />)
           )}
         </div>
       )}

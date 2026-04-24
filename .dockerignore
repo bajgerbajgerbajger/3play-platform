@@ -2,5 +2,4 @@ node_modules
 .next
 .git
 .env*
-prisma/dev.db
 *.log
