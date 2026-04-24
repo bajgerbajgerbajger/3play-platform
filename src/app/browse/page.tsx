@@ -70,13 +70,22 @@ interface BrowsePageProps {
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const resolvedParams = await searchParams;
-  const genres = await getGenres();
-  const content = await getContent(
-    resolvedParams.type,
-    resolvedParams.genre,
-    resolvedParams.year,
-    resolvedParams.sort
-  );
+  let genres: Awaited<ReturnType<typeof getGenres>> = [];
+  let content: Awaited<ReturnType<typeof getContent>> = [];
+  let dbError = false;
+
+  try {
+    genres = await getGenres();
+    content = await getContent(
+      resolvedParams.type,
+      resolvedParams.genre,
+      resolvedParams.year,
+      resolvedParams.sort
+    );
+  } catch (e) {
+    dbError = true;
+    console.error('[BROWSE_PAGE_DB]', e);
+  }
 
   return (
     <MainLayout>
@@ -88,13 +97,19 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
         </div>
 
         {/* Filters */}
-        <Suspense fallback={null}>
-          <BrowseFilters genres={genres} />
-        </Suspense>
+        {!dbError && (
+          <Suspense fallback={null}>
+            <BrowseFilters genres={genres} />
+          </Suspense>
+        )}
 
         {/* Content Grid */}
         <div className="px-4 sm:px-6 lg:px-8 py-6">
-          {content.length > 0 ? (
+          {dbError ? (
+            <div className="text-center py-12">
+              <p className="text-zinc-400">Database is starting up. Please refresh.</p>
+            </div>
+          ) : content.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {content.map((item) => (
                 <VideoCard key={item.id} content={item} />

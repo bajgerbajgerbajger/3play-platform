@@ -14,14 +14,25 @@ async function getSeries() {
 }
 
 export default async function SeriesListPage() {
-  const series = await getSeries();
+  let series: Awaited<ReturnType<typeof getSeries>> = [];
+  let dbError = false;
+  try {
+    series = await getSeries();
+  } catch (e) {
+    dbError = true;
+    console.error('[SERIES_PAGE_DB]', e);
+  }
 
   return (
     <MainLayout>
       <div className="pb-8 px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-white mb-8">TV Series</h1>
 
-        {series.length > 0 ? (
+        {dbError ? (
+          <div className="text-center py-12">
+            <p className="text-zinc-400">Database is starting up. Please refresh.</p>
+          </div>
+        ) : series.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {series.map((s) => (
               <VideoCard key={s.id} content={s} />
