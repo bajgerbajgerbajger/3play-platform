@@ -30,9 +30,10 @@ interface ContentActionsProps {
   id: string;
   type: 'movie' | 'series';
   title: string;
+  slug: string;
 }
 
-export function ContentActions({ id, type, title }: ContentActionsProps) {
+export function ContentActions({ id, type, title, slug }: ContentActionsProps) {
   const router = useRouter();
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [showRenameConfirm, setShowRenameConfirm] = useState(false);
@@ -67,6 +68,29 @@ export function ContentActions({ id, type, title }: ContentActionsProps) {
     // Logic for renaming
   };
 
+  const handleViewDetails = () => {
+    router.push(`/${type === 'movie' ? 'movies' : 'series'}/${slug}`);
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/${type === 'movie' ? 'movies' : 'series'}/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const handleCopyId = async () => {
+    try {
+      await navigator.clipboard.writeText(id);
+      toast.success('ID copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
   const handleDelete = async () => {
     try {
       await axios.delete(`/api/admin/content?id=${id}&type=${type}`);
@@ -90,7 +114,7 @@ export function ContentActions({ id, type, title }: ContentActionsProps) {
           </Button>
         } />
         <DropdownMenuContent align="end" className="w-48 bg-zinc-900 border-zinc-800 text-zinc-300">
-          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={handleViewDetails}>
             <Eye className="mr-2 h-4 w-4" />
             <span>View Details</span>
           </DropdownMenuItem>
@@ -117,15 +141,15 @@ export function ContentActions({ id, type, title }: ContentActionsProps) {
             <span>AI Analyze Scenes</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-zinc-800" />
-          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={handleShare}>
             <Share2 className="mr-2 h-4 w-4" />
             <span>Share</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={handleCopyId}>
             <Copy className="mr-2 h-4 w-4" />
             <span>Copy ID</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer">
+          <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white cursor-pointer" onClick={() => toast.message('Cut is not available here')}>
             <Scissors className="mr-2 h-4 w-4" />
             <span>Cut</span>
           </DropdownMenuItem>

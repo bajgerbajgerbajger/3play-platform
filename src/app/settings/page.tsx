@@ -2,22 +2,53 @@
 
 import { useAuth, useRequireAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, Lock, Moon, Volume2, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   useRequireAuth();
   const { user } = useAuth();
+  const router = useRouter();
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
     darkMode: true,
     volume: 80,
   });
+  const [savedSettings, setSavedSettings] = useState(settings);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('app_settings');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setSettings(parsed);
+        setSavedSettings(parsed);
+      }
+    } catch {
+    }
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: '/' });
+  };
+
+  const handleSave = () => {
+    try {
+      localStorage.setItem('app_settings', JSON.stringify(settings));
+      setSavedSettings(settings);
+      toast.success('Nastavení uloženo');
+    } catch {
+      toast.error('Nepodařilo se uložit nastavení');
+    }
+  };
+
+  const handleCancel = () => {
+    setSettings(savedSettings);
+    toast.message('Změny zrušeny');
   };
 
   return (
@@ -103,7 +134,7 @@ export default function SettingsPage() {
               <Lock className="w-5 h-5 text-blue-500" />
               <h2 className="text-xl font-semibold text-white">Security</h2>
             </div>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+            <button onClick={() => router.push('/auth/forgot-password')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
               Change Password
             </button>
           </div>
@@ -123,10 +154,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex gap-4">
-            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
               Save Changes
             </button>
-            <button className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition">
+            <button onClick={handleCancel} className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition">
               Cancel
             </button>
           </div>

@@ -74,7 +74,7 @@ export default async function ContentManagerPage() {
                 </div>
                 <p className="text-xs text-zinc-500 mt-1">{movie.viewCount.toLocaleString()} views</p>
               </div>
-              <ContentActions id={movie.id} type="movie" title={movie.title} />
+              <ContentActions id={movie.id} type="movie" title={movie.title} slug={movie.slug} />
             </div>
           ))}
         </div>
@@ -118,7 +118,7 @@ export default async function ContentManagerPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">{movie.viewCount.toLocaleString()}</td>
                   <td className="px-6 py-4 text-right">
-                    <ContentActions id={movie.id} type="movie" title={movie.title} />
+                    <ContentActions id={movie.id} type="movie" title={movie.title} slug={movie.slug} />
                   </td>
                 </tr>
               ))}
@@ -158,7 +158,7 @@ export default async function ContentManagerPage() {
                   </span>
                 </div>
               </div>
-              <ContentActions id={item.id} type="series" title={item.title} />
+              <ContentActions id={item.id} type="series" title={item.title} slug={item.slug} />
             </div>
           ))}
         </div>
@@ -200,7 +200,7 @@ export default async function ContentManagerPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <ContentActions id={item.id} type="series" title={item.title} />
+                    <ContentActions id={item.id} type="series" title={item.title} slug={item.slug} />
                   </td>
                 </tr>
               ))}
