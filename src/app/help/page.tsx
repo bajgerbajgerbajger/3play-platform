@@ -9,6 +9,7 @@ import {
   Settings, 
   Mail
 } from 'lucide-react';
+import Link from 'next/link';
 import { 
   Accordion, 
   AccordionContent, 
@@ -92,9 +93,12 @@ export default function HelpPage() {
             <p className="text-zinc-400 mb-6">
               Our support team is available 24/7 to help you with any issues or questions.
             </p>
-            <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+            <Link
+              href="mailto:support@3play.com"
+              className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+            >
               Contact Support
-            </button>
+            </Link>
           </section>
         </div>
       </div>

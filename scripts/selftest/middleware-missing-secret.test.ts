@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import type { NextRequest } from 'next/server';
 
 async function main() {
   delete process.env.NEXTAUTH_SECRET;
@@ -8,7 +9,7 @@ async function main() {
     const res = await middleware({
       nextUrl: { pathname: '/auth/error' },
       url: 'http://localhost:3000/auth/error',
-    } as any);
+    } as unknown as NextRequest);
     assert.equal(res.headers.get('x-middleware-next'), '1');
   }
 
@@ -17,7 +18,7 @@ async function main() {
     const res = await middleware({
       nextUrl: { pathname: '/auth/error' },
       url: 'http://localhost:3000/auth/error',
-    } as any);
+    } as unknown as NextRequest);
     assert.equal(res.headers.get('x-middleware-next'), '1');
   }
 
@@ -32,7 +33,7 @@ async function main() {
       cookies: {
         get: () => ({ value: 'invalid' }),
       },
-    } as any);
+    } as unknown as NextRequest);
     assert.equal(res.status, 307);
     assert.equal(res.headers.get('location'), 'http://localhost:3000/');
   }
@@ -41,7 +42,7 @@ async function main() {
     const res = await middleware({
       nextUrl: { pathname: '/admin' },
       url: 'http://localhost:3000/admin',
-    } as any);
+    } as unknown as NextRequest);
     assert.equal(res.status, 307);
     assert.equal(res.headers.get('location'), 'http://localhost:3000/');
   }
@@ -50,7 +51,7 @@ async function main() {
     const res = await middleware({
       nextUrl: { pathname: '/profile' },
       url: 'http://localhost:3000/profile',
-    } as any);
+    } as unknown as NextRequest);
     assert.equal(res.status, 307);
     assert.equal(res.headers.get('location'), 'http://localhost:3000/auth/login');
   }

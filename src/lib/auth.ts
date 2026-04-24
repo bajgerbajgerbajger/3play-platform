@@ -2,6 +2,7 @@ import { compare } from 'bcryptjs';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db } from './db';
+import { ensureAdminUser } from './adminBootstrap';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,6 +16,8 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+
+        await ensureAdminUser(db);
 
         const user = await db.user.findUnique({
           where: { email: credentials.email },

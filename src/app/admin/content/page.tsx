@@ -12,10 +12,35 @@ import { ContentActions } from './ContentActions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ContentManagerPage() {
+interface ContentManagerPageProps {
+  searchParams: Promise<{ q?: string }>;
+}
+
+export default async function ContentManagerPage({ searchParams }: ContentManagerPageProps) {
+  const resolved = await searchParams;
+  const q = resolved.q?.trim() || '';
+
+  const whereMovie = q
+    ? {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' as const } },
+          { slug: { contains: q, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+
+  const whereSeries = q
+    ? {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' as const } },
+          { slug: { contains: q, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+
   const [movies, series] = await Promise.all([
-    db.movie.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
-    db.series.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
+    db.movie.findMany({ where: whereMovie, orderBy: { createdAt: 'desc' }, take: 50 }),
+    db.series.findMany({ where: whereSeries, orderBy: { createdAt: 'desc' }, take: 50 }),
   ]);
 
   return (
@@ -39,16 +64,18 @@ export default async function ContentManagerPage() {
         <div className="p-4 sm:p-6 border-b border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Film className="w-5 h-5 text-red-600" />
-            <h2 className="text-lg font-bold">Recent Movies</h2>
+            <h2 className="text-lg font-bold">{q ? 'Movies' : 'Recent Movies'}</h2>
           </div>
-          <div className="relative w-full sm:w-64">
+          <form className="relative w-full sm:w-64" action="/admin/content">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-            <input 
-              type="text" 
-              placeholder="Search movies..." 
+            <input
+              name="q"
+              type="text"
+              placeholder="Search..."
+              defaultValue={q}
               className="bg-zinc-950 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-red-600 w-full"
             />
-          </div>
+          </form>
         </div>
 
         {/* Mobile View (Cards) */}
