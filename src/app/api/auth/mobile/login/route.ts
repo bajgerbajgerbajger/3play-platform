@@ -35,7 +35,13 @@ export async function POST(req: Request) {
     }
 
     // Create JWT
-    const secret = process.env.NEXTAUTH_SECRET || 'fallback-secret';
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+      return NextResponse.json(
+        { error: 'Server misconfiguration' },
+        { status: 500 }
+      );
+    }
     const token = jwt.sign(
       {
         id: user.id,
