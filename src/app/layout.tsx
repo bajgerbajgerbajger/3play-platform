@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/Providers";
 import { Toaster } from "sonner";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "3Play - Stream Movies & TV Series",
@@ -18,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className="dark" suppressHydrationWarning>
+    <html lang="cs" className={`dark ${sans.variable}`} suppressHydrationWarning>
       <body className="bg-zinc-950 text-zinc-100" suppressHydrationWarning>
         <Providers>
           {children}
