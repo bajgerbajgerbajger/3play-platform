@@ -7,6 +7,7 @@ RUN apk add --no-cache libc6-compat ffmpeg
 WORKDIR /app
 ENV NODE_ENV=development
 ENV NPM_CONFIG_PRODUCTION=false
+ENV NPM_CONFIG_IGNORE_SCRIPTS=true
 
 # Copy package files
 COPY package.json package-lock.json* ./
