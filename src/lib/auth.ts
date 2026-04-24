@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { db } from './db';
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET ?? 'dev-nextauth-secret',
   providers: [
     CredentialsProvider({
       name: 'credentials',
