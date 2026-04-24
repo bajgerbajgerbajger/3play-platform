@@ -58,12 +58,21 @@ async function main() {
   console.log('Created genres:', genres.length);
 
   // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 12);
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword) {
+    throw new Error('Missing ADMIN_EMAIL or ADMIN_PASSWORD environment variables');
+  }
+
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@3play.com' },
-    update: {},
+    where: { email: adminEmail },
+    update: {
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
     create: {
-      email: 'admin@3play.com',
+      email: adminEmail,
       name: 'Admin User',
       password: hashedPassword,
       role: 'ADMIN',
@@ -84,7 +93,7 @@ async function main() {
     });
   }
 
-  console.log('Created admin user: admin@3play.com / admin123');
+  console.log(`Created/updated admin user: ${adminEmail}`);
   console.log('Seeding completed successfully!');
 }
 
