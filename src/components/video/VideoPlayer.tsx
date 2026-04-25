@@ -409,10 +409,10 @@ export function VideoPlayer({
             e.stopPropagation();
             onPrevious?.();
           }}
-          className="group/nav w-full h-1/2 flex items-center justify-center hover:bg-black/20 transition-all duration-200"
+          className="group/nav w-full h-1/2 flex items-center justify-center hover:bg-black/20 transition-all duration-75"
           aria-label="Previous"
         >
-          <div className="p-4 rounded-full bg-white/10 group-hover/nav:bg-white/30 group-hover/nav:scale-125 transition-all duration-200 backdrop-blur-sm border border-white/20">
+          <div className="p-4 rounded-full bg-white/10 group-hover/nav:bg-white/30 group-hover/nav:scale-125 transition-all duration-75 backdrop-blur-sm border border-white/20">
             <ChevronLeft className="w-8 h-8 text-white" />
           </div>
         </button>
@@ -428,10 +428,10 @@ export function VideoPlayer({
             e.stopPropagation();
             onNext?.();
           }}
-          className="group/nav w-full h-1/2 flex items-center justify-center hover:bg-black/20 transition-all duration-200"
+          className="group/nav w-full h-1/2 flex items-center justify-center hover:bg-black/20 transition-all duration-75"
           aria-label="Next"
         >
-          <div className="p-4 rounded-full bg-white/10 group-hover/nav:bg-white/30 group-hover/nav:scale-125 transition-all duration-200 backdrop-blur-sm border border-white/20">
+          <div className="p-4 rounded-full bg-white/10 group-hover/nav:bg-white/30 group-hover/nav:scale-125 transition-all duration-75 backdrop-blur-sm border border-white/20">
             <ChevronRight className="w-8 h-8 text-white" />
           </div>
         </button>
@@ -509,7 +509,7 @@ export function VideoPlayer({
               variant="ghost"
               size="icon"
               onClick={togglePlay}
-              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-200"
+              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-75"
             >
               {isPlaying ? (
                 <Pause className="w-7 h-7" fill="white" />
@@ -523,7 +523,7 @@ export function VideoPlayer({
               variant="ghost"
               size="icon"
               onClick={() => skip(-10)}
-              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-200"
+              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-75"
             >
               <SkipBack className="w-6 h-6" fill="white" />
             </Button>
@@ -533,7 +533,7 @@ export function VideoPlayer({
               variant="ghost"
               size="icon"
               onClick={() => skip(10)}
-              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-200"
+              className="text-white hover:bg-white/30 hover:scale-110 active:scale-95 transition-all duration-75"
             >
               <SkipForward className="w-6 h-6" fill="white" />
             </Button>
@@ -544,7 +544,7 @@ export function VideoPlayer({
                 variant="ghost"
                 size="icon"
                 onClick={toggleMute}
-                className="text-white hover:bg-white/30 hover:scale-110 transition-all duration-200"
+                className="text-white hover:bg-white/30 hover:scale-110 transition-all duration-75"
               >
                 {isMuted ? (
                   <VolumeX className="w-6 h-6" />
